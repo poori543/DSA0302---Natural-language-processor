@@ -1,0 +1,20 @@
+import re
+from collections import Counter
+paragraph = """Python is a popular programming language.
+Python is easy to learn and easy to use.
+Many students use Python for programming and data analysis."""
+sentences = re.split(r'[.!?]+', paragraph)
+sentences = [sentence.strip() for sentence in sentences if sentence.strip()]
+print("A) SENTENCES:")
+for i, sentence in enumerate(sentences, 1):
+    print(i, ":", sentence)
+words = re.findall(r'\b\w+\b', paragraph.lower())
+print("\nB) WORDS / TOKENS:")
+print(words)
+word_count = len(words)
+print("\nC) TOTAL NUMBER OF WORDS:")
+print(word_count)
+frequency = Counter(words)
+print("\nD) MOST FREQUENT WORDS:")
+for word, count in frequency.most_common(5):
+    print(word, ":", count)
