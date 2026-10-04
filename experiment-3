@@ -1,0 +1,51 @@
+import re
+
+text = """Call me on 9876543210 or 9123456780.
+My email is Priya@gmail.com and contact@college.com.
+The meeting is on 04/10/2026.
+Priya and Rahul will attend the meeting.
+Call the office for more information."""
+
+# 1. Find the first date
+date = re.search(r'\d{2}/\d{2}/\d{4}', text)
+
+if date:
+    print("First Date:", date.group())
+
+# 2. Find all mobile numbers
+mobiles = re.findall(r'\b[6-9]\d{9}\b', text)
+print("Mobile Numbers:", mobiles)
+
+# 3. Find all Email IDs
+emails = re.findall(r'\b[\w.-]+@[\w.-]+\.\w+\b', text)
+print("Email IDs:", emails)
+
+# 4. Find all capitalized words
+capital_words = re.findall(r'\b[A-Z][a-z]*\b', text)
+print("Capitalized Words:", capital_words)
+
+# 5. Check whether text starts with "call"
+if re.match(r'(?i)call', text):
+    print("Text starts with 'call': Yes")
+else:
+    print("Text starts with 'call': No")
+
+# 6. Change date format from DD/MM/YYYY to YYYY-MM-DD
+changed_text = re.sub(
+    r'(\d{2})/(\d{2})/(\d{4})',
+    r'\3-\2-\1',
+    text
+)
+
+print("\nText after changing date format:")
+print(changed_text)
+
+# 7. Hide / mask phone numbers
+hidden_text = re.sub(
+    r'\b[6-9]\d{9}\b',
+    'XXXXXXXXXX',
+    text
+)
+
+print("\nText after hiding phone numbers:")
+print(hidden_text)
