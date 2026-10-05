@@ -1,0 +1,52 @@
+# Finite State Automaton for strings ending with "ab"
+
+def fsa(input_string):
+    # States
+    state = "q0"
+    path = [state]
+
+    # Process each character
+    for symbol in input_string:
+        if state == "q0":
+            if symbol == "a":
+                state = "q1"
+            elif symbol == "b":
+                state = "q0"
+
+        elif state == "q1":
+            if symbol == "a":
+                state = "q1"
+            elif symbol == "b":
+                state = "q2"
+
+        elif state == "q2":
+            if symbol == "a":
+                state = "q1"
+            elif symbol == "b":
+                state = "q0"
+
+        path.append(state)
+
+    # q2 is the accepting state
+    if state == "q2":
+        result = "Accepted"
+    else:
+        result = "Rejected"
+
+    return path, result
+
+
+# Sample input strings
+strings = ["ab", "aab", "abb", "aba", "baba", "aaab", "baa", "bbb"]
+
+# Test each string
+print("FSA: Strings ending with 'ab'")
+print("=" * 40)
+
+for string in strings:
+    path, result = fsa(string)
+
+    print("Input String :", string)
+    print("State Path   :", " -> ".join(path))
+    print("Result       :", result)
+    print("-" * 40)
