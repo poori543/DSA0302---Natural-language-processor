@@ -1,0 +1,33 @@
+import re
+
+# Sample strings
+strings = [
+    "hello",
+    "hello123",
+    "12345",
+    "abc",
+    "Hello",
+    "cat",
+    "dog",
+    "hello world"
+]
+
+# Regular expression patterns
+patterns = {
+    "One or more letters (+)": r"^[a-z]+$",
+    "Contains a vowel [ ]": r"[aeiou]",
+    "Contains a non-vowel [^ ]": r"[^aeiou]",
+    "Starts with hello (^)": r"^hello",
+    "Ends with 123 ($)": r"123$"
+}
+
+# Test each pattern
+for pattern_name, pattern in patterns.items():
+    print("\n" + pattern_name)
+    print("-" * 30)
+
+    for text in strings:
+        if re.search(pattern, text):
+            print(text, "-> Yes")
+        else:
+            print(text, "-> No")
