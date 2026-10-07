@@ -1,0 +1,37 @@
+def finite_automaton(string):
+    state = "q0"
+    path = [state]
+    for ch in string:
+        if state == "q0":
+            if ch == "a":
+                state = "q1"
+            elif ch == "b":
+                state = "q0"
+            else:
+                return False, path
+        elif state == "q1":
+            if ch == "a":
+                state = "q1"
+            elif ch == "b":
+                state = "q2"
+            else:
+                return False, path
+        elif state == "q2":
+            if ch == "a":
+                state = "q1"
+            elif ch == "b":
+                state = "q0"
+            else:
+                return False, path
+        path.append(state)
+    return state == "q2", path
+strings = ["ab", "aab", "abab", "abb", "baa", "babab", "aaab"]
+for string in strings:
+    accepted, path = finite_automaton(string)
+    print("Input:", string)
+    print("State Path:", " -> ".join(path))
+    if accepted:
+        print("Result: ACCEPTED")
+    else:
+        print("Result: REJECTED")
+    print()
