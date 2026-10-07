@@ -1,0 +1,26 @@
+import re
+
+text = """
+Call me at 9876543210 or 9123456780.
+My email is student@gmail.com.
+Today's date is 07-10-2026.
+"""
+date = re.search(r'\d{2}-\d{2}-\d{4}', text)
+mobiles = re.findall(r'\b[6-9]\d{9}\b', text)
+emails = re.findall(r'\b[\w.-]+@[\w.-]+\.\w+\b', text)
+capitalized = re.findall(r'\b[A-Z][a-z]*\b', text)
+starts_with_call = re.match(r'^Call', text)
+new_text = re.sub(r'(\d{2})-(\d{2})-(\d{4})',
+                  r'\3/\2/\1', text)
+hidden_text = re.sub(r'\b[6-9]\d{9}\b', 'XXXXXXXXXX', text)
+print("Original Text:")
+print(text)
+print("First Date:", date.group() if date else "Not found")
+print("Mobile Numbers:", mobiles)
+print("Email IDs:", emails)
+print("Capitalized Words:", capitalized)
+print("Starts with 'Call':", "Yes" if starts_with_call else "No")
+print("\nDate after changing format:")
+print(new_text)
+print("\nText after hiding mobile numbers:")
+print(hidden_text)
