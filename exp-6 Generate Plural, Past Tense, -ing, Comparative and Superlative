@@ -1,0 +1,97 @@
+def plural(noun):
+    irregular = {
+        "child": "children",
+        "man": "men",
+        "woman": "women",
+        "mouse": "mice",
+        "foot": "feet",
+        "tooth": "teeth",
+        "person": "people",
+        "goose": "geese"
+    }
+    if noun in irregular:
+        return irregular[noun]
+    if noun.endswith("y") and noun[-2] not in "aeiou":
+        return noun[:-1] + "ies"
+    if noun.endswith(("s", "x", "z", "ch", "sh")):
+        return noun + "es"
+    return noun + "s"
+def past_tense(verb):
+    irregular = {
+        "go": "went",
+        "eat": "ate",
+        "come": "came",
+        "see": "saw",
+        "write": "wrote",
+        "run": "ran",
+        "take": "took",
+        "buy": "bought",
+        "drink": "drank",
+        "sing": "sang"
+    }
+    if verb in irregular:
+        return irregular[verb]
+    if verb.endswith("e"):
+        return verb + "d"
+    if verb.endswith("y") and verb[-2] not in "aeiou":
+        return verb[:-1] + "ied"
+    return verb + "ed"
+def ing_form(verb):
+    irregular = {
+        "be": "being",
+        "die": "dying",
+        "lie": "lying",
+        "tie": "tying"
+    }
+    if verb in irregular:
+        return irregular[verb]
+    if verb.endswith("ie"):
+        return verb[:-2] + "ying"
+    if verb.endswith("e"):
+        return verb[:-1] + "ing"
+    return verb + "ing"
+def comparative(adjective):
+    irregular = {
+        "good": "better",
+        "bad": "worse",
+        "far": "farther",
+        "little": "less",
+        "many": "more"
+    }
+    if adjective in irregular:
+        return irregular[adjective]
+    if adjective.endswith("y"):
+        return adjective[:-1] + "ier"
+    return adjective + "er"
+def superlative(adjective):
+    irregular = {
+        "good": "best",
+        "bad": "worst",
+        "far": "farthest",
+        "little": "least",
+        "many": "most"
+    }
+    if adjective in irregular:
+        return irregular[adjective]
+    if adjective.endswith("y"):
+        return adjective[:-1] + "iest"
+    return adjective + "est"
+print("===== PLURAL FORMS =====")
+nouns = ["cat", "bus", "baby", "child", "man", "mouse"]
+for noun in nouns:
+    print(noun, "->", plural(noun))
+print("\n===== PAST TENSE =====")
+verbs = ["play", "dance", "study", "go", "eat", "write"]
+for verb in verbs:
+    print(verb, "->", past_tense(verb))
+print("\n===== ING FORMS =====")
+verbs = ["play", "dance", "make", "study", "lie", "tie"]
+for verb in verbs:
+    print(verb, "->", ing_form(verb))
+print("\n===== COMPARATIVE =====")
+adjectives = ["small", "tall", "happy", "good", "bad"]
+for adjective in adjectives:
+    print(adjective, "->", comparative(adjective))
+print("\n===== SUPERLATIVE =====")
+for adjective in adjectives:
+    print(adjective, "->", superlative(adjective))
