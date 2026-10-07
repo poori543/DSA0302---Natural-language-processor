@@ -1,0 +1,67 @@
+suffixes = {
+    "ness": {
+        "pos": "Adjective -> Noun",
+        "meaning": "state or quality"
+    },
+    "ment": {
+        "pos": "Verb -> Noun",
+        "meaning": "result or process"
+    },
+    "er": {
+        "pos": "Verb -> Noun",
+        "meaning": "person who performs an action"
+    },
+    "ful": {
+        "pos": "Noun -> Adjective",
+        "meaning": "full of"
+    },
+    "less": {
+        "pos": "Noun -> Adjective",
+        "meaning": "without"
+    },
+    "ly": {
+        "pos": "Adjective -> Adverb",
+        "meaning": "in a particular manner"
+    },
+    "able": {
+        "pos": "Verb -> Adjective",
+        "meaning": "capable of"
+    },
+    "tion": {
+        "pos": "Verb -> Noun",
+        "meaning": "action or result"
+    }
+}
+def analyze_word(word):
+    sorted_suffixes = sorted(suffixes.keys(),
+                             key=len,
+                             reverse=True)
+    for suffix in sorted_suffixes:
+        if word.endswith(suffix) and len(word) > len(suffix):
+            base = word[:-len(suffix)]
+            information = suffixes[suffix]
+            return base, suffix, information["pos"], information["meaning"]
+    return None
+words = [
+    "happiness",
+    "development",
+    "teacher",
+    "hopeful",
+    "careless",
+    "quickly",
+    "readable",
+    "creation"
+]
+print("DERIVATIONAL SUFFIX ANALYSIS")
+print("=" * 60)
+for word in words:
+    result = analyze_word(word)
+    print("\nWord:", word)
+    if result:
+        base, suffix, pos, meaning = result
+        print("Base:", base)
+        print("Suffix:", suffix)
+        print("Word Class Change:", pos)
+        print("Meaning Added:", meaning)
+    else:
+        print("No derivational suffix found")
