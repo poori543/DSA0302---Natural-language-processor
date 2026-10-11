@@ -1,0 +1,15 @@
+
+import nltk
+from nltk.stem import PorterStemmer
+ps = PorterStemmer()
+words = [
+    "playing", "played", "plays",
+    "studies", "studying", "happiness",
+    "connected", "connection", "running",
+    "fairly"
+]
+print("Original Word\tStemmed Word")
+print("-" * 35)
+for word in words:
+    stem = ps.stem(word)
+    print(f"{word:<18}{stem}")
