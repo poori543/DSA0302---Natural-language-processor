@@ -1,0 +1,28 @@
+from nltk.util import ngrams
+from nltk.tokenize import word_tokenize
+
+import nltk
+nltk.download('punkt')
+nltk.download('punkt_tab')
+
+sentence = "I love learning Python programming"
+
+words = word_tokenize(sentence)
+
+unigrams = list(ngrams(words, 1))
+bigrams = list(ngrams(words, 2))
+trigrams = list(ngrams(words, 3))
+
+print("Sentence:", sentence)
+
+print("\nUnigrams:")
+for item in unigrams:
+    print(item)
+
+print("\nBigrams:")
+for item in bigrams:
+    print(item)
+
+print("\nTrigrams:")
+for item in trigrams:
+    print(item)
