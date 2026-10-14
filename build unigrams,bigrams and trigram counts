@@ -1,0 +1,52 @@
+
+from collections import Counter
+corpus = [
+    "i love tea",
+    "i love coffee",
+    "we love tea",
+    "i drink tea"
+]
+unigram_counts = Counter()
+bigram_counts = Counter()
+trigram_counts = Counter()
+for sentence in corpus:
+    words = sentence.lower().split()
+    unigram_counts.update(words)
+    for i in range(len(words) - 1):
+        bigram_counts[(words[i], words[i + 1])] += 1
+    for i in range(len(words) - 2):
+        trigram_counts[
+            (words[i], words[i + 1], words[i + 2])
+        ] += 1
+total_words = sum(unigram_counts.values())
+print("UNIGRAM COUNTS")
+for word, count in unigram_counts.items():
+    print(word, ":", count)
+print("\nBIGRAM COUNTS")
+for words, count in bigram_counts.items():
+    print(words, ":", count)
+print("\nTRIGRAM COUNTS")
+for words, count in trigram_counts.items():
+    print(words, ":", count)
+def calculate_score(w1, w2, w3):
+    trigram = (w1, w2, w3)
+    bigram = (w2, w3)
+    if trigram_counts[trigram] > 0:
+        score = trigram_counts[trigram] / bigram_counts[(w1, w2)]
+        level = "TRIGRAM"
+    elif bigram_counts[bigram] > 0:
+        score = (
+            bigram_counts[bigram] / unigram_counts[w2]
+        ) * 0.4
+        level = "BIGRAM BACKOFF"
+    else:
+        score = (
+            unigram_counts[w3] / total_words
+        ) * 0.4 * 0.4
+        level = "UNIGRAM BACKOFF"
+    print("\nSequence:", w1, w2, w3)
+    print("Level used:", level)
+    print("Score:", round(score, 4))
+calculate_score("i", "love", "tea")       # Trigram seen
+calculate_score("we", "love", "tea")      # Bigram backoff
+calculate_score("we", "drink", "coffee")  # Unigram backoff
