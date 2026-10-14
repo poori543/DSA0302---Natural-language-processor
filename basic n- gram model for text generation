@@ -1,0 +1,42 @@
+
+import random
+from collections import defaultdict, Counter
+corpus = [
+    "i love python",
+    "i love machine learning",
+    "python is easy",
+    "python is powerful",
+    "i love programming"
+]
+bigram_model = defaultdict(Counter)
+for sentence in corpus:
+    words = sentence.lower().split()
+    words = ["<START>"] + words + ["<END>"]
+    for i in range(len(words) - 1):
+        current_word = words[i]
+        next_word = words[i + 1]
+        bigram_model[current_word][next_word] += 1
+def generate_sentence(max_length=10):
+    current_word = "<START>"
+    sentence = []
+    for _ in range(max_length):
+        if current_word not in bigram_model:
+            break
+        possible_words = list(bigram_model[current_word].keys())
+        counts = list(bigram_model[current_word].values())
+        next_word = random.choices(
+            possible_words, weights=counts, k=1
+        )[0]
+        if next_word == "<END>":
+            break
+        sentence.append(next_word)
+        current_word = next_word
+    return " ".join(sentence)
+print("BIGRAM MODEL")
+print("-" * 30)
+for word, next_words in bigram_model.items():
+    print(word, "->", dict(next_words))
+print("\nGENERATED SENTENCES")
+print("-" * 30)
+for i in range(3):
+    print("Sentence", i + 1, ":", generate_sentence())
