@@ -1,0 +1,52 @@
+
+from collections import Counter
+from nltk.util import bigrams
+corpus = [
+    "i like tea",
+    "i like coffee",
+    "i drink tea"
+]
+bigram_counts = Counter()
+unigram_counts = Counter()
+vocabulary = set()
+for sentence in corpus:
+    words = sentence.lower().split()
+    vocabulary.update(words)
+    unigram_counts.update(words)
+    bigram_counts.update(bigrams(words))
+V = len(vocabulary)
+print("Vocabulary:", sorted(vocabulary))
+print("Vocabulary size:", V)
+def mle_probability(w1, w2):
+    # P(w2 | w1) = Count(w1, w2) / Count(w1)
+    if unigram_counts[w1] == 0:
+        return 0.0
+    return bigram_counts[(w1, w2)] / unigram_counts[w1]
+def add_one_probability(w1, w2):
+    # P(w2 | w1) = (Count(w1, w2) + 1) /
+    #              (Count(w1) + Vocabulary size)
+    return (bigram_counts[(w1, w2)] + 1) / (
+        unigram_counts[w1] + V
+    )
+test_bigrams = [
+    ("i", "like"),       # Seen
+    ("like", "tea"),     # Seen
+    ("i", "tea"),        # Unseen
+    ("drink", "coffee")  # Unseen
+]
+print("\nBIGRAM PROBABILITY COMPARISON")
+print("-" * 75)
+print(f"{'Bigram':<20}{'Count':<10}{'MLE':<15}{'Add-One':<15}{'Status'}")
+print("-" * 75)
+for w1, w2 in test_bigrams:
+    count = bigram_counts[(w1, w2)]
+    mle = mle_probability(w1, w2)
+    add_one = add_one_probability(w1, w2)
+    status = "Seen" if count > 0 else "Unseen"
+    print(
+        f"{w1 + ' ' + w2:<20}"
+        f"{count:<10}"
+        f"{mle:<15.4f}"
+        f"{add_one:<15.4f}"
+        f"{status}"
+    )
