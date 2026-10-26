@@ -1,0 +1,22 @@
+import nltk
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('averaged_perceptron_tagger_eng')
+sentence = "I love India"
+words = nltk.word_tokenize(sentence)
+penn_tags = nltk.pos_tag(words)
+print("1. Penn Treebank Tagset")
+for word, tag in penn_tags:
+    print(word, "-", tag)
+universal_tags = nltk.pos_tag(words, tagset='universal')
+print("\n2. Universal POS Tagset")
+for word, tag in universal_tags:
+    print(word, "-", tag)
+simplified_tags = {
+    "I": "PRONOUN",
+    "love": "VERB",
+    "India": "PROPER NOUN"
+}
+print("\n3. Simplified POS Tagset")
+for word in words:
+    print(word, "-", simplified_tags[word])
