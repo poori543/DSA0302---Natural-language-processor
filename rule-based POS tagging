@@ -1,0 +1,20 @@
+sentences = [
+    "I love India",
+    "I love you"
+]
+rules = {
+    "I": "PRONOUN",
+    "love": "VERB",
+    "India": "PROPER NOUN",
+    "you": "PRONOUN"
+}
+for sentence in sentences:
+    print("\nSentence:", sentence)
+    words = sentence.split()
+    print("POS Tagging:")
+    for word in words:
+        tag = rules.get(word, "UNKNOWN")
+        print(word, "->", tag)
+    if len(words) >= 3 and words[0].lower() == "i" and words[1].lower() == "love":
+        print("Word after 'I love':", words[2])
+        print("Its POS tag:", rules.get(words[2], "UNKNOWN"))
