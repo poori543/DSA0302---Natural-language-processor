@@ -1,0 +1,44 @@
+
+words = ["connected", "connecting", "connection"]
+rules = {
+    "ed": ("connect", "Inflectional"),
+    "ing": ("connect", "Inflectional"),
+    "ion": ("connect", "Derivational")
+}
+common_base = "connect"
+def morphological_analysis(word):
+    for suffix in sorted(rules.keys(), key=len, reverse=True):
+        if word.endswith(suffix):
+            root, suffix_type = rules[suffix]
+            return {
+                "Word": word,
+                "Root": root,
+                "Suffix": suffix,
+                "Suffix Type": suffix_type,
+                "Normalized Form": common_base
+            }
+    return {
+        "Word": word,
+        "Root": word,
+        "Suffix": "None",
+        "Suffix Type": "None",
+        "Normalized Form": word
+    }
+results = [morphological_analysis(word) for word in words]
+headers = [
+    "Word", "Root", "Suffix",
+    "Suffix Type", "Normalized Form"
+]
+print("MORPHOLOGICAL ANALYSIS RESULTS")
+print("-" * 88)
+print("{:<15} {:<12} {:<10} {:<18} {:<18}".format(*headers))
+print("-" * 88)
+for result in results:
+    print("{:<15} {:<12} {:<10} {:<18} {:<18}".format(
+        result["Word"],
+        result["Root"],
+        result["Suffix"],
+        result["Suffix Type"],
+        result["Normalized Form"]
+    ))
+print("-" * 88)
