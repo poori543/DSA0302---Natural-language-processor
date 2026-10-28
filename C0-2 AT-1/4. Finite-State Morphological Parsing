@@ -1,0 +1,44 @@
+words = ["writes", "writing", "written"]
+transitions = {
+    "START": "CHECK_WORD",
+    "CHECK_WORD": "IDENTIFY_ROOT",
+    "IDENTIFY_ROOT": "CLASSIFY_FORM",
+    "CLASSIFY_FORM": "NORMALIZE",
+    "NORMALIZE": "ACCEPT"
+}
+rules = {
+    "writes": {
+        "root": "write",
+        "breakdown": "write + s",
+        "affix": "s",
+        "type": "Regular inflection",
+        "rule": "Add -s for third-person singular"
+    },
+    "writing": {
+        "root": "write",
+        "breakdown": "write + ing (drop final e)",
+        "affix": "ing",
+        "type": "Regular inflection",
+        "rule": "Drop final e and add -ing"
+    },
+    "written": {
+        "root": "write",
+        "breakdown": "write -> writ + ten",
+        "affix": "irregular participle",
+        "type": "Irregular inflection",
+        "rule": "Irregular past participle"
+    }
+}
+for word in words:
+    info = rules[word]
+    print("\nInput word:", word)
+    print("State transition path:")
+    print("START -> CHECK_WORD -> IDENTIFY_ROOT -> "
+          "CLASSIFY_FORM -> NORMALIZE -> ACCEPT")
+    print("Morphological breakdown:", info["breakdown"])
+    print("Root form:", info["root"])
+    print("Affix / pattern:", info["affix"])
+    print("Classification:", info["type"])
+    print("Applied rule:", info["rule"])
+    print("Normalized output:", info["root"])
+    print("-" * 60)
