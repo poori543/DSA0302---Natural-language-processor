@@ -1,0 +1,72 @@
+words = ["unhappy", "happiness", "happily"]
+
+# Rule-based morphological analysis
+def morphological_parsing(word):
+
+    if word == "unhappy":
+        prefix = "un"
+        root = "happy"
+        suffix = "None"
+        transformation = "Derivational"
+        breakdown = "un + happy"
+
+    elif word == "happiness":
+        prefix = "None"
+        root = "happy"
+        suffix = "ness"
+        transformation = "Derivational"
+        breakdown = "happy + ness"
+
+    elif word == "happily":
+        prefix = "None"
+        root = "happy"
+        suffix = "ly"
+        transformation = "Derivational"
+        breakdown = "happi + ly (y changes to i)"
+        
+    else:
+        prefix = "None"
+        root = word
+        suffix = "None"
+        transformation = "No transformation"
+        breakdown = word
+
+    # Normalize all related words to the common root
+    normalized_root = root
+
+    # Sentiment interpretation
+    if word == "unhappy":
+        sentiment = "Negative"
+    else:
+        sentiment = "Positive"
+
+    return [
+        word, prefix, suffix, root,
+        breakdown, transformation,
+        normalized_root, sentiment
+    ]
+
+
+# Analyze all words
+results = [morphological_parsing(word) for word in words]
+
+# Display results in tabular format
+headers = [
+    "Word", "Prefix", "Suffix", "Root",
+    "Breakdown", "Type", "Normalized Root", "Sentiment"
+]
+
+print("MORPHOLOGICAL PARSING RESULTS")
+print("=" * 125)
+print("{:<13} {:<9} {:<9} {:<9} {:<24} {:<16} {:<17} {:<10}".format(
+    *headers
+))
+print("-" * 125)
+
+for row in results:
+    print("{:<13} {:<9} {:<9} {:<9} {:<24} {:<16} {:<17} {:<10}".format(
+        *row
+    ))
+
+print("=" * 125)
+print("Common normalized root: happy")
