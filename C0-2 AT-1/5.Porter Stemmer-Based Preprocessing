@@ -1,0 +1,31 @@
+import nltk
+from nltk.stem import PorterStemmer
+stemmer = PorterStemmer()
+words = ["relational", "relation", "relate"]
+steps = {
+    "relational": [
+        ("Original word", "relational"),
+        ("Step 2: -ational -> -ate", "relate"),
+        ("Step 5: remove final e", "relat")
+    ],
+    "relation": [
+        ("Original word", "relation"),
+        ("Step 2: -ation -> -ate", "relate"),
+        ("Step 5: remove final e", "relat")
+    ],
+    "relate": [
+        ("Original word", "relate"),
+        ("Step 5: remove final e", "relat")
+    ]
+}
+print("PORTER STEMMER RESULTS")
+print("=" * 75)
+for word in words:
+    final_stem = stemmer.stem(word)
+    print("\nOriginal word:", word)
+    print("Stemming steps:")
+    for rule, form in steps[word]:
+        print("  ", rule, ":", form)
+    print("Final stem from Porter Stemmer:", final_stem)
+    print("Normalized form for indexing:", final_stem)
+    print("-" * 75)
