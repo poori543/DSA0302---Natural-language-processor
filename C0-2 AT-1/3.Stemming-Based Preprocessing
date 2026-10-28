@@ -1,0 +1,30 @@
+words = ["played", "player", "playing"]
+def stemming_analysis(word):
+    if word == "played":
+        stem = "play"
+        affix = "ed"
+        transformation = "Inflectional"
+    elif word == "player":
+        stem = "play"
+        affix = "er"
+        transformation = "Derivational"
+    elif word == "playing":
+        stem = "play"
+        affix = "ing"
+        transformation = "Inflectional"
+    else:
+        stem = word
+        affix = "None"
+        transformation = "None"
+    normalized = stem
+    return word, stem, affix, transformation, normalized
+results = [stemming_analysis(word) for word in words]
+print("STEMMING-BASED PREPROCESSING RESULTS")
+print("-" * 90)
+print("{:<12} {:<12} {:<12} {:<18} {:<15}".format(
+    "Original", "Stem", "Removed Affix", "Transformation", "Normalized"
+))
+print("-" * 90)
+for row in results:
+    print("{:<12} {:<12} {:<12} {:<18} {:<15}".format(*row))
+print("-" * 90)
