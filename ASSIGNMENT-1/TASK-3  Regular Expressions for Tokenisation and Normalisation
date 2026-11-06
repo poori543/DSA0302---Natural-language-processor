@@ -1,0 +1,129 @@
+import re
+print("TASK 3 - TOKENISATION AND NORMALISATION")
+print("=" * 60)
+token_pattern = re.compile(
+    r"""
+    \d+(?:\.\d+)?(?:\s?(?:mg|mcg|g|kg|ml|mmHg|mmol/L|g/dL|°?C))?
+    |
+    (?:[A-Za-z]\.){2,}
+    |
+    [A-Za-z]+(?:[-'][A-Za-z]+)*(?:\.)?
+    """,
+    re.IGNORECASE | re.VERBOSE
+)
+print("\n1. REGEX TOKENISATION")
+sentences = [
+    "BP 120/80 mmHg",
+    "Patient has post-operative pain.",
+    "Dr. Rao prescribed 2.5 mg medicine."
+]
+for sentence in sentences:
+    print("\nInput:", sentence)
+    print("Tokens:", token_pattern.findall(sentence))
+print("\n2. MAXIMAL MUNCH TOKENISATION")
+examples = [
+    "BP 120/80 mmHg",
+    "post-operative patient",
+    "Dr. Rao gave 2.5 mg."
+]
+for sentence in examples:
+    print("\nInput:", sentence)
+    print("Whitespace:", sentence.split())
+    print("Regex tokens:", token_pattern.findall(sentence))
+print("\n3. ABBREVIATION EXPANSION")
+abbreviations = {
+    "BP": "blood pressure",
+    "HR": "heart rate",
+    "RR": "respiratory rate",
+    "Temp": "temperature",
+    "SOB": "shortness of breath",
+    "CP": "chest pain",
+    "DM": "diabetes mellitus",
+    "HTN": "hypertension",
+    "CAD": "coronary artery disease",
+    "CVA": "cerebrovascular accident",
+    "MI": "myocardial infarction",
+    "COPD": "chronic obstructive pulmonary disease",
+    "CKD": "chronic kidney disease",
+    "UTI": "urinary tract infection",
+    "ECG": "electrocardiogram",
+    "CBC": "complete blood count",
+    "RBC": "red blood cell",
+    "WBC": "white blood cell",
+    "Hb": "haemoglobin",
+    "MRI": "magnetic resonance imaging",
+    "CT": "computed tomography",
+    "USG": "ultrasonography",
+    "IV": "intravenous",
+    "IM": "intramuscular",
+    "PO": "by mouth",
+    "OD": "once daily",
+    "BD": "twice daily",
+    "TDS": "three times daily",
+    "QID": "four times daily",
+    "PRN": "as needed",
+    "NPO": "nothing by mouth",
+    "OPD": "outpatient department",
+    "ICU": "intensive care unit",
+    "ER": "emergency room"
+}
+def expand_abbreviations(text):
+    for short in sorted(abbreviations, key=len, reverse=True):
+        pattern = r"(?<!\w)" + re.escape(short) + r"(?!\w)"
+        text = re.sub(
+            pattern,
+            abbreviations[short],
+            text,
+            flags=re.IGNORECASE
+        )
+    return text
+print("Total abbreviations:", len(abbreviations))
+def normalise_dates(text):
+    def change(match):
+        day, month, year = match.groups()
+        return f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+    return re.sub(
+        r"\b(\d{1,2})[/-](\d{1,2})[/-](\d{4})\b",
+        change,
+        text
+    )
+def normalise_units(text):
+    text = re.sub(r"(?i)\bmmhg\b", "mmHg", text)
+    text = re.sub(r"(?i)\bg/dl\b", "g/dL", text)
+    text = re.sub(r"(?i)\bml\b", "mL", text)
+    text = re.sub(r"(\d+(?:\.\d+)?)\s*C\b", r"\1 °C", text)
+    return text
+def normalise_text(text):
+    text = text.lower()
+    text = expand_abbreviations(text)
+    text = normalise_dates(text)
+    text = normalise_units(text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+print("\n4. FULL RECORD BEFORE AND AFTER NORMALISATION")
+record = (
+    "Patient ID: HSP1025. Admission Date: 12/03/2025. "
+    "Discharge Date: 18-03-2025. "
+    "BP 120/80 mmhg. HR 82. Temp 37.2 C. "
+    "Patient has HTN and DM. "
+    "Doctor prescribed Paracetamol 500 mg BD. "
+    "CBC shows Hb 12.5 g/dl."
+)
+print("\nBEFORE NORMALISATION:")
+print(record)
+normalised = normalise_text(record)
+print("\nAFTER NORMALISATION:")
+print(normalised)
+print("\n5. NORMALISED TOKENS")
+print(token_pattern.findall(normalised))
+print("\n6. IRREVERSIBLE NORMALISATION")
+print("1. Case folding: BP becomes bp.")
+print("2. Abbreviation expansion: BD becomes twice daily.")
+print("3. Date conversion: 12/03/2025 becomes 2025-03-12.")
+print("4. Punctuation removal may remove formatting information.")
+print("\n7. LIMITATIONS OF REGEX")
+print("Regex is useful for fixed text patterns.")
+print("It cannot reliably match arbitrarily nested parentheses.")
+print("Example: (patient (with severe (chest pain)))")
+print("A stack-based parser or context-free grammar is required.")
+print("\nTASK 3 COMPLETED SUCCESSFULLY!")
