@@ -1,0 +1,118 @@
+
+sample = (
+    "nephritis gastritis arthritis bronchitis appendectomy mastectomy nephrectomy "
+    "cardiology neurology pathology fibrosis thrombosis psychosis anaemia leukaemia bacteraemia "
+    "inflammation medication examination treatable measurable removable effective protective selective "
+    "renal neural clinical surgical cardiac gastric hepatic neuropathy nephropathy neurogenic "
+    "hyperglycaemia hypertension hyperthermia hypoglycaemia hypotension hypothermia "
+    "retreatment reoperation reassessment unresponsive unstable uncommon "
+    "treatment treatment clinical clinical"
+)
+
+words = sample.lower().split()
+
+inventory = {
+    "-itis": ("N -> N", ["nephritis", "gastritis", "arthritis", "bronchitis"]),
+    "-ectomy": ("N -> N", ["appendectomy", "mastectomy", "nephrectomy"]),
+    "-ology": ("N -> N", ["cardiology", "neurology", "pathology"]),
+    "-osis": ("N -> N", ["fibrosis", "thrombosis", "psychosis"]),
+    "-aemia": ("N -> N", ["anaemia", "leukaemia", "bacteraemia"]),
+    "-ation": ("V -> N", ["inflammation", "medication", "examination"]),
+    "-able": ("V -> ADJ", ["treatable", "measurable", "removable"]),
+    "-ive": ("V/N -> ADJ", ["effective", "protective", "selective"]),
+    "-al": ("N -> ADJ", ["renal", "neural", "clinical", "surgical"]),
+    "-ic": ("N -> ADJ", ["cardiac", "gastric", "hepatic"]),
+    "-pathy": ("N -> N", ["neuropathy", "nephropathy"]),
+    "-genic": ("N -> ADJ", ["neurogenic"]),
+    "hyper-": ("Prefix: high/excess", ["hyperglycaemia", "hypertension", "hyperthermia"]),
+    "hypo-": ("Prefix: low/deficient", ["hypoglycaemia", "hypotension", "hypothermia"]),
+    "neuro-": ("Combining form: nervous system", ["neuropathy", "neurogenic"]),
+    "re-": ("V -> V: repetition", ["retreatment", "reoperation", "reassessment"]),
+    "un-": ("ADJ -> ADJ: negation", ["unresponsive", "unstable", "uncommon"]),
+    "-ment": ("V -> N", ["treatment"]),
+    "-ness": ("ADJ -> N", [])
+}
+
+print("TASK 6: DERIVATIONAL MORPHOLOGY")
+print("=" * 65)
+
+print("\n1. AFFIX INVENTORY WITH TYPE AND TOKEN COUNTS")
+print("-" * 65)
+
+for affix, details in inventory.items():
+
+    category = details[0]
+
+    if affix.endswith("-"):
+        suffix = affix[:-1]
+        hits = [word for word in words if word.startswith(suffix)]
+    else:
+        suffix = affix[1:]
+        hits = [word for word in words if word.endswith(suffix)]
+
+    type_count = len(set(hits))
+    token_count = len(hits)
+
+    if type_count >= 3:
+        status = "Productive in sample"
+    elif type_count == 0:
+        status = "Not found in sample"
+    else:
+        status = "Limited evidence"
+
+    print(
+        f"{affix:10s} | {category:25s} | "
+        f"Types: {type_count:2d} | Tokens: {token_count:2d} | {status}"
+    )
+
+print("\n2. SIX DERIVATIONAL FAMILIES")
+print("-" * 65)
+
+families = [
+    "nephr + -itis = nephritis; nephr + -ectomy = nephrectomy; nephr + -ology = nephrology",
+    "neur + -ology = neurology; neur + -al = neural; neur + -pathy = neuropathy",
+    "gastr + -itis = gastritis; gastr + -ic = gastric",
+    "cardi + -ology = cardiology; cardi + -ac = cardiac",
+    "treat + -ment = treatment; treat + -able = treatable",
+    "operate -> reoperate -> reoperation"
+]
+
+for family in families:
+    print("-", family)
+
+print("\n3. IMPOSSIBLE AFFIX ORDERS")
+print("-" * 65)
+
+print("1. *-itis + nephro + root: a suffix cannot normally precede its root.")
+print("2. *treat + -ment + -able: -able normally attaches to a verb, not a noun.")
+print("3. *re- + treatment: re- normally attaches to a verbal base, such as re-treat.")
+
+print("\n4. SEMANTIC NON-COMPOSITIONALITY")
+print("-" * 65)
+
+print("Remission and inflammation have specialised clinical meanings.")
+print("Their meanings cannot always be predicted from individual word parts.")
+print("Aggressive stemming may combine clinically different terms.")
+print("Therefore, a search system should use clinical dictionaries and context.")
+
+print("\n5. DERIVATIONAL CONFLATION IN SEARCH")
+print("-" * 65)
+
+print("Helpful examples:")
+print("1. treat <-> treatment")
+print("2. operate <-> operation")
+
+print("\nPotentially misleading examples:")
+print("1. infection vs infectious")
+print("2. renal vs renin")
+
+print("\n6. AFFIX PRODUCTIVITY")
+print("-" * 65)
+
+print("Affixes with three or more different examples show evidence of productivity")
+print("within this sample corpus.")
+print("Affixes with only one example have limited evidence.")
+print("The -ness suffix has no example in this sample.")
+print("These results describe this sample and are not universal linguistic rules.")
+
+print("\nTASK 6 COMPLETED SUCCESSFULLY")
