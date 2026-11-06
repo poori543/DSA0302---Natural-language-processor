@@ -1,0 +1,26 @@
+pairs={
+("fracture","N","PL"):"fractures",("fracture","N","SG"):"fracture",
+("patient","N","PL"):"patients",("treat","V","PAST"):"treated",
+("treat","V","PRES3SG"):"treats",("treat","V","PROG"):"treating",
+("study","V","PAST"):"studied",("study","N","PL"):"studies",
+("write","V","PAST"):"wrote",("write","V","PP"):"written",
+("leave","V","PAST"):"left",("left","N","SG"):"left",
+("diagnosis","N","PL"):"diagnoses",("child","N","PL"):"children"}
+continuation={"N":["SG","PL","DERIV"],"V":["PRES3SG","PAST","PP","PROG","DERIV"],
+              "ADJ":["POS","COMP","SUP","DERIV"]}
+def parse(surface):
+    return [f"{s}+{p}+{f}" for (s,p,f),v in pairs.items() if v==surface]
+def generate(analysis):
+    try:s,p,f=analysis.split("+")
+    except ValueError:return []
+    v=pairs.get((s,p,f)); return [v] if v else []
+print("Continuation classes:",continuation)
+print("\nHand traces (lexical tape -> surface tape):")
+for form in ["fractures","treated","treating","wrote","written"]:
+    print(form,"consumed surface symbols ->",parse(form))
+print("\nGeneration through the same relation:")
+for a in ["fracture+N+PL","treat+V+PAST","write+V+PP"]:print(a,"=>",generate(a))
+print("\nAmbiguous forms:")
+for form in ["left","studies"]:print(form,"=>",parse(form))
+print("Resolve with sentence context, POS tagging, syntax and clinical terminology; retain all analyses initially.")
+print("This finite relation is bidirectional: its lexical/surface pairs support both analysis and generation.")
