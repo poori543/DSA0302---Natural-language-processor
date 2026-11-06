@@ -1,0 +1,46 @@
+
+import re
+corpus=("patient fracture treat monitor study severe diagnosis child write be ").split()*12
+tokens=corpus
+irregular={"children":"child","diagnoses":"diagnosis","wrote":"write","written":"write",
+"is":"be","am":"be","are":"be","was":"be","were":"be","been":"be","being":"be"}
+def lemma(w):
+    w=w.lower()
+    if w in irregular:return irregular[w]
+    if w.endswith("ies") and len(w)>3:return w[:-3]+"y"
+    if w.endswith("ing") and len(w)>5:
+        s=w[:-3]
+        if len(s)>2 and s[-1]==s[-2]:s=s[:-1]
+        return s
+    if w.endswith("ed") and len(w)>4:return w[:-2]
+    if w.endswith("es") and len(w)>4:return w[:-2]
+    if w.endswith("s") and len(w)>3:return w[:-1]
+    return w
+print("Morpheme = smallest meaning/function unit; stem = base for affixation; affix = bound morpheme.")
+print("Inflection = grammatical variation of same lexeme; paradigm = its set of forms.")
+print("Inflection normally preserves category and is productive; derivation can change category/meaning.")
+paradigms={
+"fracture (N)":["fracture","fractures"],
+"patient (N)":["patient","patients"],
+"treat (V)":["treat","treats","treated","treating"],
+"monitor (V)":["monitor","monitors","monitored","monitoring"],
+"study (V/N)":["study","studies","studied","studying"],
+"severe (ADJ)":["severe","severer","severest","more severe","most severe"]}
+for k,v in paradigms.items():print(k,":",", ".join(v))
+print("\nSpelling rules and counter-examples:")
+print("e-deletion: silent final e drops before -ing (make->making); overgeneralising: see->seing (should be seeing).")
+print("CVC doubling: double final consonant in stressed CVC (stop->stopped); overgeneralising: help->helpped.")
+print("y-to-i: consonant+y before -s/-ed/-er/-est (study->studies); overgeneralising: play->plaies (plays).")
+print("sibilant -es: add -es after s,x,z,ch,sh (watch->watches); overgeneralising: book->bookes.")
+print("final e + -ed: add only -d (treat->treated); overgeneralising: agree->agreed is okay, but naive e deletion would give agreed? exceptions need lexical checks.")
+print("\nIrregular lexicon:")
+for f,l in irregular.items():print(f,"->",l)
+surface_types=len(set(tokens)); lemma_types=len({lemma(x) for x in tokens})
+print("\nToken count:",len(tokens),"surface types:",surface_types,"lemma types:",lemma_types,
+      "type-to-lemma ratio:",round(surface_types/lemma_types,3))
+queries=["fractures","treating","monitors","studies","patients","children","written","treated"]
+vocab=set(tokens); lemmas={lemma(x) for x in tokens}
+miss=[q for q in queries if q not in vocab and lemma(q) in lemmas]
+print("Query set:",queries)
+print("Failures explained by inflection:",miss)
+print("Proportion:",f"{len(miss)}/{len(queries)} = {len(miss)/len(queries):.1%}")
