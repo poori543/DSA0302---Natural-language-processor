@@ -1,0 +1,55 @@
+def vowel(c):return c.lower() in "aeiou"
+def cvc(w):return len(w)>=3 and not vowel(w[-3]) and vowel(w[-2]) and not vowel(w[-1]) and w[-1] not in "wxy"
+def plural(w):
+    if w.endswith(("s","x","z","ch","sh")):return w+"es"
+    if w.endswith("y") and len(w)>1 and not vowel(w[-2]):return w[:-1]+"ies"
+    return w+"s"
+def past(w):
+    if w.endswith("e"):return w+"d"
+    if w.endswith("y") and len(w)>1 and not vowel(w[-2]):return w[:-1]+"ied"
+    if cvc(w):return w+w[-1]+"ed"
+    return w+"ed"
+def prog(w):
+    if w.endswith("ie"):return w[:-2]+"ying"
+    if w.endswith("e") and not w.endswith("ee"):return w[:-1]+"ing"
+    if cvc(w):return w+w[-1]+"ing"
+    return w+"ing"
+def comp(w):
+    if w.endswith("y") and len(w)>1 and not vowel(w[-2]):return w[:-1]+"ier"
+    if w.endswith("e"):return w+"r"
+    if cvc(w):return w+w[-1]+"er"
+    return w+"er"
+def sup(w):
+    if w.endswith("y") and len(w)>1 and not vowel(w[-2]):return w[:-1]+"iest"
+    if w.endswith("e"):return w+"st"
+    if cvc(w):return w+w[-1]+"est"
+    return w+"est"
+def transduce(stem,feat):
+    return {"PL":plural,"PAST":past,"PROG":prog,"COMP":comp,"SUP":sup,"PRES3SG":plural,
+            "BASE":lambda x:x,"SG":lambda x:x}[feat](stem)
+
+print("Rewrite rules: e->Ø / stem-final e __ +ing; C->CC / stressed CVC __ +ed|+ing;")
+print("y->i / consonant __ +s|+ed|+er|+est; Ø->e / sibilant __ +s;")
+print("Ø->d / final e __ +ed.")
+print("Naive concatenation errors:", "make+ing =", "makeing (correct making);",
+      "study+s = studys (correct studies); watch+s = watchs (correct watches).")
+tests=[
+("fracture","PL","fractures"),("patient","PL","patients"),("watch","PL","watches"),
+("study","PL","studies"),("treat","PAST","treated"),("monitor","PAST","monitored"),
+("study","PAST","studied"),("stop","PAST","stopped"),("make","PROG","making"),
+("treat","PROG","treating"),("run","PROG","running"),("die","PROG","dying"),
+("study","COMP","studier"),("severe","COMP","severer"),("hot","COMP","hotter"),
+("study","SUP","studiest"),("large","SUP","largest"),("hot","SUP","hottest"),
+("watch","PRES3SG","watches"),("treat","PRES3SG","treats")]
+ok=0
+print("\n20-form evaluation:")
+for s,f,e in tests:
+    got=transduce(s,f); good=got==e; ok+=good
+    print(f"{s}+{f:8s} -> {got:12s} expected {e:12s} {'PASS' if good else 'FAIL'}")
+print("Success:",ok,"/20; failures:",20-ok)
+print("\nCascade: Lexicon FST -> e deletion -> consonant doubling -> y-to-i -> sibilant -es -> surface.")
+print("Sequential cascade: simple to implement, but rule order can matter.")
+print("Parallel two-level (Koskenniemi): lexical/surface correspondences are constrained together;")
+print("less dependent on sequential order, but needs richer correspondence constraints.")
+print("Failures/exceptions: generic rules do not derive children, went, mice, better, best;")
+print("store irregulars in lexicon. These rules are a transparent regular-form demonstrator, not full English morphology.")
