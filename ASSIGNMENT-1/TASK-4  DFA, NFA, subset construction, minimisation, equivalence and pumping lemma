@@ -1,0 +1,94 @@
+from collections import deque
+import re
+def run_dfa(s, trans, start, finals, classify):
+    q=start
+    for ch in s: q=trans.get((q,classify(ch)),"DEAD")
+    return q in finals
+def show(name, states, alphabet, trans, start, finals):
+    print("\n"+name+"\nTransition diagram (edges):")
+    for (a,b),c in trans.items(): print(f"{a} --{b}--> {c}")
+    print("Transition table")
+    print("state | "+" | ".join(alphabet))
+    for q in states: print(q,"|"," | ".join(trans.get((q,a),"DEAD") for a in alphabet))
+    print("start =",start," final =",finals)
+Q1=[f"q{i}" for i in range(9)]; A1=["H","S","P","-","D"]
+T1={(f"q{i}",c):f"q{i+1}" for i,c in enumerate(["H","S","P","-","D","D","D","D"])}
+show("DFA 1 Patient ID HSP-1234",Q1,A1,T1,"q0",{"q8"})
+cl1=lambda c: c if c in "HSP-" else ("D" if c.isdigit() else "X")
+for x in ["HSP-1234","HSP-12A4","1234"]: print(x,run_dfa(x,T1,"q0",{"q8"},cl1))
+Q2=["a0","a1","a2","a3"]; A2=["LETTER","D"]
+T2={("a0","LETTER"):"a1",("a1","D"):"a2",("a2","D"):"a3"}
+show("DFA 2 simplified ICD: uppercase letter + two digits",Q2,A2,T2,"a0",{"a3"})
+cl2=lambda c: "LETTER" if c.isupper() and c.isalpha() else ("D" if c.isdigit() else "X")
+for x in ["A12","B99","AB12"]: print(x,run_dfa(x,T2,"a0",{"a3"},cl2))
+Q3=[f"d{i}" for i in range(11)]; A3=["D","/"]
+T3={(f"d{i}",("/" if i in (2,5) else "D")):f"d{i+1}" for i in range(10)}
+show("DFA 3 date shape DD/MM/YYYY",Q3,A3,T3,"d0",{"d10"})
+cl3=lambda c: "/" if c=="/" else ("D" if c.isdigit() else "X")
+for x in ["06/11/2026","6/11/2026","31/02/2026"]: print(x,run_dfa(x,T3,"d0",{"d10"},cl3))
+Q4=["b0","b1","b2"]; A4=["D","/"]
+T4={("b0","D"):"b1",("b1","D"):"b1",("b1","/"):"b2",("b2","D"):"b2"}
+show("DFA 4 blood pressure digits/digits",Q4,A4,T4,"b0",{"b2"})
+for x in ["120/80","8/6","120/","/80"]: print(x,run_dfa(x,T4,"b0",{"b2"},cl3))
+NFA={ (2,"P"):{1},(1,"D"):{3},(3,"D"):{4},(4,"D"):{5},(5,"D"):{6} }
+EPS={0:{1,2}}; FINAL={6}; ALPHA=["P","D"]
+def closure(S):
+    S=set(S); todo=list(S)
+    while todo:
+        q=todo.pop()
+        for z in EPS.get(q,set()):
+            if z not in S: S.add(z); todo.append(z)
+    return frozenset(S)
+def move(S,a):
+    out=set()
+    for q in S: out |= NFA.get((q,a),set())
+    return closure(out)
+def trace(seq):
+    S=closure({0}); print("epsilon closure:",sorted(S))
+    for a in seq: S=move(S,a); print("after",a,":",sorted(S))
+    print("ACCEPT" if FINAL.intersection(S) else "REJECT")
+print("\nNFA accepted trace P D D D D"); trace(["P","D","D","D","D"])
+print("NFA rejected trace P D D D"); trace(["P","D","D","D"])
+start=closure({0}); subsets=[start]; seen={start}; todo=deque([start]); ST={}
+while todo:
+    S=todo.popleft()
+    for a in ALPHA:
+        U=move(S,a) or frozenset({"DEAD"})
+        ST[S,a]=U
+        if U not in seen: seen.add(U); subsets.append(U); todo.append(U)
+dead=frozenset({"DEAD"})
+for a in ALPHA: ST[dead,a]=dead
+def label(S): return "{"+",".join(str(x) for x in sorted(S,key=str))+"}"
+print("\nSubset construction table")
+print("subset | P | D | final")
+for S in subsets:
+    print(label(S),"|",label(ST[S,"P"]),"|",label(ST[S,"D"]),"|",bool(FINAL.intersection(S)))
+print("NFA states =",7,"; reachable DFA subset states including dead =",len(subsets))
+finals={S for S in subsets if FINAL.intersection(S)}
+parts=[p for p in [finals,set(subsets)-finals] if p]
+change=True
+while change:
+    change=False; refined=[]
+    for group in parts:
+        buckets={}
+        for S in group:
+            sig=tuple(next(i for i,p in enumerate(parts) if ST[S,a] in p) for a in ALPHA)
+            buckets.setdefault(sig,set()).add(S)
+        refined.extend(buckets.values())
+        if len(buckets)>1: change=True
+    parts=refined
+print("\nMinimisation groups:")
+for i,p in enumerate(parts): print("M"+str(i),[label(s) for s in p])
+print("DFA states before =",len(subsets),"; after =",len(parts))
+atoms=["H","S","P","-","DIGIT","DIGIT","DIGIT","DIGIT"]
+print("\nThompson NFA for expanded regex H S P - D D D D:")
+for i,a in enumerate(atoms): print(i,"--"+a+"-->",i+1)
+print("Start 0; final 8. Regex from the linear automaton: HSP-[0-9]{4}")
+for x in ["HSP-1234","HSP-9876","HSP-12A4"]:
+    print(x, bool(re.fullmatch(r"HSP-[0-9]{4}",x)))
+print("\nPumping lemma proof: L={ '('^n + ')'^n : n>=0 } is not regular.")
+print("Assume pumping length p. Choose w='('*p + ')'*p. For any w=xyz with")
+print("|xy|<=p and |y|>0, y contains only '(' symbols. Pump down (i=0):")
+print("xy^0z has fewer opening than closing brackets, so it is not in L: contradiction.")
+print("A regex can detect bracket characters/local patterns, but cannot enforce unbounded")
+print("equality of opening and closing bracket counts (as noted in Task 3).")
