@@ -1,0 +1,193 @@
+import re
+import pandas as pd
+print("=" * 70)
+print("HOSPITAL RECORD TEXT NORMALISATION - TASK 1")
+print("=" * 70)
+records = [
+    "Patient has fractured femur and severe pain.",
+    "Patient has fracture and requires operation.",
+    "Patient ku fever irukku and doctor prescribed medicine.",
+    "BP 120/80 mmHg and temperature 37.2 C.",
+    "Patient was admitted for renal surgery.",
+    "OCR text: patlent has fracturе and diab etes."
+]
+print("\n1. SAMPLE HOSPITAL RECORDS")
+for i, record in enumerate(records, 1):
+    print(f"Record {i}: {record}")
+levels = {
+    "Phonology": (
+        "Studies speech sounds and pronunciation.",
+        "Useful for speech input, but not essential for basic text search."
+    ),
+    "Morphology": (
+        "Studies roots, prefixes and suffixes.",
+        "Required: fracture, fractured and fractures share a root."
+    ),
+    "Syntax": (
+        "Studies sentence structure and word order.",
+        "Useful for identifying relationships between clinical terms."
+    ),
+    "Semantics": (
+        "Studies the meaning of words and sentences.",
+        "Required for understanding medical terms and abbreviation meanings."
+    ),
+    "Pragmatics": (
+        "Studies meaning based on context and situation.",
+        "Useful for interpreting clinical instructions and context."
+    ),
+    "Discourse": (
+        "Studies relationships between sentences.",
+        "Useful for connecting diagnosis and treatment across a document."
+    )
+}
+print("\n2. LEVELS OF LINGUISTIC ANALYSIS")
+for level, details in levels.items():
+    print("\n", level)
+    print("Definition:", details[0])
+    print("Hospital application:", details[1])
+models = {
+    "State Machines": {
+        "Task": "Validate patient IDs and date formats.",
+        "Reason": "States and transitions recognise valid input patterns."
+    },
+    "Formal Rule Systems": {
+        "Task": "Analyse morphology and expand known abbreviations.",
+        "Reason": "Rules describe prefixes, suffixes and word transformations."
+    },
+    "Probabilistic Models": {
+        "Task": "Correct OCR errors and identify likely language tokens.",
+        "Reason": "Probability helps choose the most likely interpretation."
+    }
+}
+print("\n3. THREE MODEL FAMILIES")
+for model, info in models.items():
+    print("\n", model)
+    print("Best task:", info["Task"])
+    print("Reason:", info["Reason"])
+print("\nWhy not use the other models?")
+print("- State machines are not ideal for ranking uncertain OCR corrections.")
+print("- Rule systems cannot easily handle every uncertain spelling variation.")
+print("- Probabilistic models are unnecessary for simple fixed-format ID validation.")
+ambiguities = {
+    "Lexical ambiguity": {
+        "Example": "cold",
+        "Explanation": "May mean low temperature or a common illness."
+    },
+    "Morphological ambiguity": {
+        "Example": "fractures",
+        "Explanation": "May be analysed as fracture + plural suffix."
+    },
+    "Segmentation ambiguity": {
+        "Example": "diabetespatient",
+        "Explanation": "OCR or missing spaces may combine separate words."
+    },
+    "Abbreviation ambiguity": {
+        "Example": "MS",
+        "Explanation": "May refer to multiple sclerosis or another medical term."
+    }
+}
+print("\n4. TYPES OF AMBIGUITY")
+for name, info in ambiguities.items():
+    print("\n", name)
+    print("Example:", info["Example"])
+    print("Explanation:", info["Explanation"])
+ocr_text = "patlent has fracturе and diab etes"
+print("\n5. OCR ERROR HANDLING")
+print("Original OCR text:", ocr_text)
+corrections = {
+    "patlent": "patient",
+    "fracturе": "fracture",
+    "diab etes": "diabetes"
+}
+corrected_text = ocr_text
+for wrong, correct in corrections.items():
+    corrected_text = corrected_text.replace(wrong, correct)
+print("Corrected text:", corrected_text)
+mixed_text = "Patient ku fever irukku and doctor medicine kuduthar."
+print("\n6. CODE-MIXED LANGUAGE PROCESSING")
+print("Original sentence:", mixed_text)
+tamil_dictionary = {
+    "ku": "to",
+    "irukku": "has",
+    "kuduthar": "gave"
+}
+tokens = mixed_text.lower().split()
+normalised_tokens = [
+    tamil_dictionary.get(token.strip(".,!?"), token)
+    for token in tokens
+]
+print("Normalised tokens:", normalised_tokens)
+print("Note: This is a small demonstration dictionary, not a complete translator.")
+word_forms = ["fracture", "fractured", "fractures", "fracturing"]
+print("\n7. MORPHOLOGICAL ANALYSIS")
+for word in word_forms:
+    if word.endswith("ing"):
+        root = word[:-3]
+        feature = "Present participle"
+    elif word.endswith("ed"):
+        root = word[:-2]
+        feature = "Past tense"
+    elif word.endswith("s"):
+        root = word[:-1]
+        feature = "Plural"
+    else:
+        root = word
+        feature = "Base form"
+    print(f"{word:15} -> Root: {root:12} Feature: {feature}")
+print("\n8. SEARCH IN NLP")
+print("\nState-space search:")
+states = ["START", "H", "HS", "HSP", "DIGITS", "ACCEPT"]
+for state in states:
+    print("->", state)
+print("\nBacktracking in pattern matching:")
+pattern = re.compile(r"(fracture|fractured|fracturing)")
+test_text = "Patient has fracturing of bone."
+match = pattern.search(test_text)
+if match:
+    print("Matched word:", match.group())
+else:
+    print("No match found.")
+resources = pd.DataFrame({
+    "Resource": [
+        "Time",
+        "Memory",
+        "Annotated Data",
+        "Expert Effort"
+    ],
+    "Requirement": [
+        "Processing time for searching and matching patterns.",
+        "Storage for automata, dictionaries and indexes.",
+        "Correctly labelled clinical words and search results.",
+        "Doctors and NLP experts for vocabulary and annotation."
+    ]
+})
+print("\n9. RESOURCES REQUIRED")
+print(resources.to_string(index=False))
+pipeline = [
+    ("INPUT", "Scanned notes and typed clinical records",
+     "OCR + Text Input"),
+    ("STAGE 1", "OCR correction and code-mix handling",
+     "Dictionary + Probabilistic correction"),
+    ("STAGE 2", "Text cleaning and tokenisation",
+     "Regular Expressions"),
+    ("STAGE 3", "Clinical entity recognition",
+     "Regular Expressions"),
+    ("STAGE 4", "Entity format validation",
+     "DFA / NFA"),
+    ("STAGE 5", "Root and affix identification",
+     "Morphological rules + Lexicon"),
+    ("STAGE 6", "Canonical word conversion",
+     "Finite State Transducer"),
+    ("STAGE 7", "Search indexing and retrieval",
+     "Inverted Index + Search"),
+    ("OUTPUT", "Normalised and searchable hospital records",
+     "Ranked relevant records")
+]
+print("\n10. PROPOSED HOSPITAL NLP PIPELINE")
+print("=" * 70)
+for stage, operation, formalism in pipeline:
+    print(f"{stage}")
+    print("Operation :", operation)
+    print("Formalism :", formalism)
+    print("-" * 70)
+print("\nTASK 1 IMPLEMENTATION COMPLETED SUCCESSFULLY!")
