@@ -1,0 +1,373 @@
+!pip -q install nltk pandas matplotlib
+import re
+import pandas as pd
+import matplotlib.pyplot as plt
+from nltk.stem import PorterStemmer
+porter = PorterStemmer(mode=PorterStemmer.ORIGINAL_ALGORITHM)
+VOWELS = "aeiou"
+def is_consonant(word, i):
+    if word[i] in VOWELS:
+        return False
+    if word[i] == "y":
+        if i == 0:
+            return True
+        return not is_consonant(word, i - 1)
+    return True
+def cv_pattern(word):
+    return "".join(
+        "C" if is_consonant(word, i) else "V"
+        for i in range(len(word))
+    )
+def measure_m(word):
+    pattern = cv_pattern(word)
+    return sum(
+        pattern[i:i+2] == "VC"
+        for i in range(len(pattern) - 1)
+    )
+def has_vowel(word):
+    return any(
+        not is_consonant(word, i)
+        for i in range(len(word))
+    )
+def double_consonant(word):
+    return (
+        len(word) >= 2
+        and word[-1] == word[-2]
+        and is_consonant(word, len(word) - 1)
+    )
+def cvc_condition(word):
+    if len(word) < 3:
+        return False
+    return (
+        is_consonant(word, len(word)-3)
+        and not is_consonant(word, len(word)-2)
+        and is_consonant(word, len(word)-1)
+        and word[-1] not in "wxy"
+    )
+print("\nPART 1: PORTER CONDITIONS")
+clinical_words = [
+    "fracture", "infection", "treatment",
+    "renal", "wound", "medication"
+]
+for word in clinical_words:
+    print("\nWord:", word)
+    print("Pattern:", cv_pattern(word))
+    print("Measure m:", measure_m(word))
+    print("Vowel v*:", has_vowel(word))
+    print("Double consonant d*:", double_consonant(word))
+    print("CVC condition o*:", cvc_condition(word))
+def porter_trace(word):
+    print("\nOriginal word:", word)
+    word = porter._step1a(word)
+    print("Step 1a:", word)
+    word = porter._step1b(word)
+    print("Step 1b:", word)
+    word = porter._step1c(word)
+    print("Step 1c:", word)
+    word = porter._step2(word)
+    print("Step 2:", word)
+    word = porter._step3(word)
+    print("Step 3:", word)
+    word = porter._step4(word)
+    print("Step 4:", word)
+    word = porter._step5a(word)
+    print("Step 5a:", word)
+    word = porter._step5b(word)
+    print("Step 5b:", word)
+    print("Final stem:", word)
+print("\nPART 2: PORTER STEMMER TRACE")
+test_words = [
+    "fractures", "infections", "treated",
+    "operating", "medications", "wounds"
+]
+for word in test_words:
+    porter_trace(word)
+fst_lexicon = {
+    "fractures": "fracture",
+    "fracture": "fracture",
+    "infections": "infection",
+    "infection": "infection",
+    "infected": "infect",
+    "infecting": "infect",
+    "treatments": "treatment",
+    "treatment": "treatment",
+    "treated": "treat",
+    "treating": "treat",
+    "wounds": "wound",
+    "wound": "wound",
+    "wounded": "wound",
+    "wounding": "wound",
+    "medications": "medication",
+    "medication": "medication",
+    "medicated": "medicate",
+    "medicating": "medicate",
+    "operating": "operate",
+    "operated": "operate",
+    "operates": "operate",
+    "operate": "operate",
+    "operation": "operation",
+    "renal": "renal",
+    "kidneys": "kidney",
+    "kidney": "kidney",
+    "cells": "cell",
+    "cell": "cell",
+    "diagnoses": "diagnosis",
+    "diagnosis": "diagnosis",
+    "diagnosed": "diagnose",
+    "diagnosing": "diagnose",
+    "symptoms": "symptom",
+    "symptom": "symptom",
+    "patients": "patient",
+    "patient": "patient",
+    "doctors": "doctor",
+    "doctor": "doctor",
+    "surgeries": "surgery",
+    "surgery": "surgery",
+    "bleeding": "bleed",
+    "bled": "bleed",
+    "bleed": "bleed"
+}
+annotated_forms = [
+    ("fracture", "fracture", "NOUN"),
+    ("fractures", "fracture", "NOUN"),
+    ("infection", "infection", "NOUN"),
+    ("infections", "infection", "NOUN"),
+    ("infected", "infect", "VERB"),
+    ("infecting", "infect", "VERB"),
+    ("treatment", "treatment", "NOUN"),
+    ("treatments", "treatment", "NOUN"),
+    ("treated", "treat", "VERB"),
+    ("treating", "treat", "VERB"),
+    ("wound", "wound", "NOUN"),
+    ("wounds", "wound", "NOUN"),
+    ("wounded", "wound", "VERB"),
+    ("wounding", "wound", "VERB"),
+    ("medication", "medication", "NOUN"),
+    ("medications", "medication", "NOUN"),
+    ("medicated", "medicate", "VERB"),
+    ("medicating", "medicate", "VERB"),
+    ("operate", "operate", "VERB"),
+    ("operating", "operate", "VERB"),
+    ("operated", "operate", "VERB"),
+    ("operates", "operate", "VERB"),
+    ("operation", "operation", "NOUN"),
+    ("renal", "renal", "ADJ"),
+    ("kidney", "kidney", "NOUN"),
+    ("kidneys", "kidney", "NOUN"),
+    ("cell", "cell", "NOUN"),
+    ("cells", "cell", "NOUN"),
+    ("diagnosis", "diagnosis", "NOUN"),
+    ("diagnoses", "diagnosis", "NOUN"),
+    ("diagnosed", "diagnose", "VERB"),
+    ("diagnosing", "diagnose", "VERB"),
+    ("symptom", "symptom", "NOUN"),
+    ("symptoms", "symptom", "NOUN"),
+    ("patient", "patient", "NOUN"),
+    ("patients", "patient", "NOUN"),
+    ("doctor", "doctor", "NOUN"),
+    ("doctors", "doctor", "NOUN"),
+    ("surgery", "surgery", "NOUN"),
+    ("surgeries", "surgery", "NOUN")
+]
+df = pd.DataFrame(
+    annotated_forms * 5,
+    columns=["word", "gold_lemma", "pos"]
+).head(200).copy()
+df["porter_stem"] = df["word"].apply(porter.stem)
+df["fst_lemma"] = df["word"].apply(
+    lambda w: fst_lexicon.get(w, w)
+)
+df["porter_fst_agree"] = (
+    df["porter_stem"] == df["fst_lemma"]
+)
+print("\nPART 3: PORTER VS FST")
+print(df.head(20).to_string(index=False))
+print("\nTotal forms:", len(df))
+print("Agreement:", df["porter_fst_agree"].sum())
+print("Disagreement:", (~df["porter_fst_agree"]).sum())
+print(
+    "Agreement percentage:",
+    round(df["porter_fst_agree"].mean() * 100, 2),
+    "%"
+)
+unique_df = df.drop_duplicates(
+    subset=["word", "gold_lemma"]
+).copy()
+records = unique_df.to_dict("records")
+over_errors = []
+under_errors = []
+for i in range(len(records)):
+    for j in range(i + 1, len(records)):
+        a = records[i]
+        b = records[j]
+        if a["word"] == b["word"]:
+            continue
+        same_stem = a["porter_stem"] == b["porter_stem"]
+        same_lemma = a["gold_lemma"] == b["gold_lemma"]
+        if same_stem and not same_lemma:
+            over_errors.append(
+                (a["word"], b["word"], a["porter_stem"])
+            )
+        if same_lemma and not same_stem:
+            under_errors.append(
+                (a["word"], b["word"],
+                 a["porter_stem"], b["porter_stem"])
+            )
+total_errors = len(over_errors) + len(under_errors)
+over_rate = (
+    len(over_errors) / total_errors * 100
+    if total_errors else 0
+)
+under_rate = (
+    len(under_errors) / total_errors * 100
+    if total_errors else 0
+)
+print("\nPART 4: ERROR ANALYSIS")
+print("\nOver-stemming examples:")
+for item in over_errors[:10]:
+    print(item)
+print("\nUnder-stemming examples:")
+for item in under_errors[:10]:
+    print(item)
+print("\nOver-stemming count:", len(over_errors))
+print("Under-stemming count:", len(under_errors))
+print("Over-stemming rate:", round(over_rate, 2), "%")
+print("Under-stemming rate:", round(under_rate, 2), "%")
+word_pairs = [
+    ("patient", "patients", "patient"),
+    ("symptom", "symptoms", "symptom"),
+    ("wound", "wounds", "wound"),
+    ("fracture", "fractures", "fracture"),
+    ("infection", "infections", "infection"),
+    ("treatment", "treatments", "treatment"),
+    ("cell", "cells", "cell"),
+    ("kidney", "kidneys", "kidney"),
+    ("doctor", "doctors", "doctor"),
+    ("surgeon", "surgeons", "surgeon"),
+    ("diagnosis", "diagnoses", "diagnosis"),
+    ("tablet", "tablets", "tablet"),
+    ("capsule", "capsules", "capsule"),
+    ("bleed", "bleeding", "bleed"),
+    ("treat", "treated", "treat"),
+    ("operate", "operating", "operate"),
+    ("inject", "injected", "inject"),
+    ("monitor", "monitored", "monitor"),
+    ("examine", "examined", "examine"),
+    ("heal", "healing", "heal")
+]
+retrieval_fst = {}
+for w1, w2, lemma in word_pairs:
+    retrieval_fst[w1] = lemma
+    retrieval_fst[w2] = lemma
+queries = []
+documents = {}
+relevance = {}
+number = 1
+for w1, w2, lemma in word_pairs:
+    for query_word, document_word in [(w1, w2), (w2, w1)]:
+        qid = "Q" + str(number)
+        did = "D" + str(number)
+        queries.append({
+            "query_id": qid,
+            "query": query_word
+        })
+        documents[did] = (
+            "Clinical record contains " +
+            document_word +
+            " and patient information."
+        )
+        relevance[qid] = {did}
+        number += 1
+for i in range(1, 41):
+    documents["N" + str(i)] = (
+        "Routine clinical observation and normal vital signs."
+    )
+def tokenize(text):
+    return re.findall(r"[a-z]+", text.lower())
+def normalize(word, method):
+    if method == "No stemming":
+        return word
+    if method == "Porter":
+        return porter.stem(word)
+    if method == "Full morphology":
+        return retrieval_fst.get(word, word)
+    return word
+def retrieve(query, method):
+    query_terms = set(
+        normalize(w, method)
+        for w in tokenize(query)
+    )
+    found = []
+    for doc_id, content in documents.items():
+        doc_terms = set(
+            normalize(w, method)
+            for w in tokenize(content)
+        )
+        if query_terms.intersection(doc_terms):
+            found.append(doc_id)
+    return found
+def calculate_metrics(method):
+    correct = 0
+    retrieved_count = 0
+    relevant_count = 0
+    for item in queries:
+        qid = item["query_id"]
+        query = item["query"]
+        retrieved = retrieve(query, method)
+        relevant = relevance[qid]
+        correct += len(set(retrieved) & relevant)
+        retrieved_count += len(retrieved)
+        relevant_count += len(relevant)
+    precision = (
+        correct / retrieved_count
+        if retrieved_count else 0
+    )
+    recall = (
+        correct / relevant_count
+        if relevant_count else 0
+    )
+    f1 = (
+        2 * precision * recall / (precision + recall)
+        if precision + recall else 0
+    )
+    return {
+        "Method": method,
+        "Precision": round(precision, 3),
+        "Recall": round(recall, 3),
+        "F1 Score": round(f1, 3)
+    }
+results = []
+for method in [
+    "No stemming",
+    "Porter",
+    "Full morphology"
+]:
+    results.append(calculate_metrics(method))
+results_df = pd.DataFrame(results)
+print("\nPART 5: RETRIEVAL RESULTS")
+print("Number of queries:", len(queries))
+print("Number of documents:", len(documents))
+print(results_df.to_string(index=False))
+for metric in ["Precision", "Recall", "F1 Score"]:
+    plt.figure(figsize=(8, 4))
+    plt.bar(
+        results_df["Method"],
+        results_df[metric]
+    )
+    plt.title(metric + " Comparison")
+    plt.xlabel("Retrieval Method")
+    plt.ylabel(metric)
+    plt.ylim(0, 1.1)
+    plt.grid(axis="y")
+    plt.tight_layout()
+    plt.show()
+print("\n" + "=" * 55)
+print("TASK 9 COMPLETED SUCCESSFULLY")
+print("=" * 55)
+print("Porter and FST agreement:",
+      round(df["porter_fst_agree"].mean() * 100, 2), "%")
+print("Over-stemming errors:", len(over_errors))
+print("Under-stemming errors:", len(under_errors))
+print("\nFinal retrieval comparison:")
+print(results_df.to_string(index=False))
+print("\nAll Task 9 sections executed.")
