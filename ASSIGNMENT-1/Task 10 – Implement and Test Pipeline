@@ -1,0 +1,339 @@
+
+!pip -q install nltk pandas matplotlib
+import re
+import time
+import pandas as pd
+import matplotlib.pyplot as plt
+from nltk.stem import PorterStemmer
+start_all = time.time()
+porter = PorterStemmer()
+records = []
+for i in range(500):
+    patient_id = f"P{10 + i // 100:02d}-{100 + i:03d}"
+    admission = "12/01/2026"
+    discharge = "15/01/2026"
+    record = (
+        f"Patient ID: {patient_id}. "
+        f"Admission Date: {admission}. Discharge Date: {discharge}. "
+        f"Drug: Paracetamol 500mg. Frequency: 2 times daily. "
+        f"Lab Value: 120 mg/dL. BP: 120/80 mmHg. "
+        f"Temperature: 37.0 C. ICD Code: A01.1. "
+        f"Ward A-Bed 01. Contact: 9876543210. "
+        f"Age: 25 years. Symptom Duration: 3 days. "
+        f"Patient reports fever and infection."
+    )
+    records.append(record)
+print("Total clinical records:", len(records))
+token_pattern = re.compile(r"[A-Za-z]+(?:['-][A-Za-z]+)*|\d+(?:\.\d+)?")
+token_start = time.time()
+all_tokens = []
+for record in records:
+    all_tokens.extend(token_pattern.findall(record))
+token_time = time.time() - token_start
+print("\nTOKENIZER OUTPUT")
+print("Total tokens:", len(all_tokens))
+print("Sample tokens:", all_tokens[:20])
+patterns = {
+    "Patient ID": r"\bP\d{2}-\d{3}\b",
+    "Admission/Discharge Date": r"\b\d{2}/\d{2}/\d{4}\b",
+    "Drug and Strength": r"\b[A-Z][a-z]+\s+\d+\s*mg\b",
+    "Dosage Frequency": r"\b\d+\s+times?\s+(?:daily|weekly)\b",
+    "Lab Value": r"\b\d+(?:\.\d+)?\s*(?:mg/dL|mmol/L)\b",
+    "Blood Pressure": r"\b\d{2,3}/\d{2,3}\s*mmHg\b",
+    "Temperature": r"\b\d{2}(?:\.\d)?\s*C\b",
+    "ICD Code": r"\b[A-Z]\d{2}(?:\.\d{1,2})?\b",
+    "Ward and Bed": r"\bWard\s+[A-Z]-Bed\s+\d{2}\b",
+    "Contact Number": r"\b[6-9]\d{9}\b",
+    "Age": r"\bAge:\s*\d{1,3}\s+years\b",
+    "Symptom Duration": r"\b\d+\s+days?\b"
+}
+print("\nREGULAR EXPRESSION TESTS")
+regex_results = []
+regex_test_results = []
+regex_start = time.time()
+for name, pattern in patterns.items():
+    total_matches = 0
+    matched_record_patterns = 0
+    rejected_record_patterns = 0
+    for record in records:
+        matches = re.findall(pattern, record)
+        total_matches += len(matches)
+        if matches:
+            matched_record_patterns += 1
+        else:
+            rejected_record_patterns += 1
+    regex_results.append({
+        "Entity": name,
+        "Occurrences": total_matches,
+        "Matched Records": matched_record_patterns,
+        "Rejected Records": rejected_record_patterns
+    })
+    valid_examples = {
+        "Patient ID": "P12-345",
+        "Admission/Discharge Date": "12/01/2026",
+        "Drug and Strength": "Paracetamol 500mg",
+        "Dosage Frequency": "2 times daily",
+        "Lab Value": "120 mg/dL",
+        "Blood Pressure": "120/80 mmHg",
+        "Temperature": "37.0 C",
+        "ICD Code": "A01.1",
+        "Ward and Bed": "Ward A-Bed 01",
+        "Contact Number": "9876543210",
+        "Age": "Age: 25 years",
+        "Symptom Duration": "3 days"
+    }
+    invalid_examples = {
+        "Patient ID": "ABC123",
+        "Admission/Discharge Date": "2026-01-12",
+        "Drug and Strength": "Paracetamol",
+        "Dosage Frequency": "daily",
+        "Lab Value": "120",
+        "Blood Pressure": "120/80",
+        "Temperature": "hot",
+        "ICD Code": "12345",
+        "Ward and Bed": "Room 01",
+        "Contact Number": "12345",
+        "Age": "Age: twenty years",
+        "Symptom Duration": "few days"
+    }
+    valid_ok = bool(re.fullmatch(pattern, valid_examples[name]))
+    invalid_ok = not bool(re.fullmatch(pattern, invalid_examples[name]))
+    regex_test_results.append({
+        "Entity": name,
+        "Valid Test": "PASS" if valid_ok else "FAIL",
+        "Rejected Test": "PASS" if invalid_ok else "FAIL"
+    })
+regex_time = time.time() - regex_start
+regex_df = pd.DataFrame(regex_results)
+regex_tests_df = pd.DataFrame(regex_test_results)
+print("\nREGEX ENTITY EXTRACTION RESULTS")
+display(regex_df)
+print("\nREGEX TEST RESULTS")
+display(regex_tests_df)
+def patient_id_dfa(value):
+    if len(value) != 7:
+        return False
+    if value[0] != "P":
+        return False
+    if not value[1:3].isdigit():
+        return False
+    if value[3] != "-":
+        return False
+    if not value[4:7].isdigit():
+        return False
+    return True
+dfa_tests = ["P12-345", "P10-100", "ABC123", "P1-234", "P12-34"]
+dfa_results = []
+for value in dfa_tests:
+    dfa_results.append({
+        "Input": value,
+        "DFA Result": "Accepted" if patient_id_dfa(value) else "Rejected"
+    })
+dfa_df = pd.DataFrame(dfa_results)
+print("\nDFA TEST RESULTS")
+display(dfa_df)
+nfa = {
+    "S": {"": {"A", "B"}},
+    "A": {"a": {"F"}},
+    "B": {"b": {"F"}},
+    "F": {}
+}
+def epsilon_closure(states):
+    closure = set(states)
+    stack = list(states)
+    while stack:
+        state = stack.pop()
+        for next_state in nfa.get(state, {}).get("", set()):
+            if next_state not in closure:
+                closure.add(next_state)
+                stack.append(next_state)
+    return frozenset(closure)
+def nfa_move(states, symbol):
+    result = set()
+    for state in states:
+        result.update(nfa.get(state, {}).get(symbol, set()))
+    return result
+def subset_construction():
+    start_state = epsilon_closure({"S"})
+    dfa_states = [start_state]
+    transitions = {}
+    unprocessed = [start_state]
+    while unprocessed:
+        current = unprocessed.pop(0)
+        transitions[current] = {}
+        for symbol in ["a", "b"]:
+            moved = nfa_move(current, symbol)
+            next_set = epsilon_closure(moved)
+            transitions[current][symbol] = next_set
+            if next_set and next_set not in dfa_states:
+                dfa_states.append(next_set)
+                unprocessed.append(next_set)
+    return dfa_states, transitions
+subset_states, subset_transitions = subset_construction()
+def nfa_accepts(value):
+    current = epsilon_closure({"S"})
+    for symbol in value:
+        current = epsilon_closure(nfa_move(current, symbol))
+    return "F" in current
+nfa_tests = ["a", "b", "ab", "c", ""]
+nfa_results = []
+for value in nfa_tests:
+    nfa_results.append({
+        "Input": value if value else "Empty String",
+        "NFA Result": "Accepted" if nfa_accepts(value) else "Rejected"
+    })
+print("\nNFA SUBSET CONSTRUCTION")
+print("Reachable DFA states:")
+for state in subset_states:
+    print(set(state))
+print("\nNFA TEST RESULTS")
+display(pd.DataFrame(nfa_results))
+fst_lexicon = {
+    "played": "play",
+    "playing": "play",
+    "plays": "play",
+    "connected": "connect",
+    "connecting": "connect",
+    "connects": "connect",
+    "watches": "watch",
+    "watched": "watch",
+    "watching": "watch",
+    "children": "child",
+    "went": "go",
+    "better": "good",
+    "infections": "infection",
+    "infected": "infect",
+    "treatments": "treatment",
+    "wounds": "wound",
+    "fractures": "fracture",
+    "medications": "medication"
+}
+def fst_analyse(word):
+    word = word.lower()
+    return fst_lexicon.get(word, word)
+
+fst_start = time.time()
+
+fst_outputs = [fst_analyse(token) for token in all_tokens]
+
+fst_time = time.time() - fst_start
+fst_recognized = sum(
+    1 for token in all_tokens if token.lower() in fst_lexicon
+)
+
+print("\nFST TEST")
+for word in ["played", "playing", "connected", "children", "went"]:
+    print(word, "->", fst_analyse(word))
+
+print("FST recognized tokens:", fst_recognized)
+print("FST coverage: {:.2f}%".format(
+    fst_recognized / len(all_tokens) * 100
+))
+porter_start = time.time()
+porter_outputs = [
+    porter.stem(token.lower())
+    for token in all_tokens
+    if token.isalpha()
+]
+porter_time = time.time() - porter_start
+print("\nPORTER STEMMER TEST")
+test_words = [
+    "fractures", "infections", "treatments",
+    "playing", "connected", "medications"
+]
+for word in test_words:
+    print(word, "->", porter.stem(word))
+regex_processed = len(records) * len(patterns)
+regex_matched = sum(row["Matched Records"] for row in regex_results)
+regex_rejected = regex_processed - regex_matched
+fst_processed = len(all_tokens)
+fst_matched = fst_recognized
+fst_rejected = fst_processed - fst_matched
+pipeline_data = [
+    {
+        "Pipeline Stage": "Tokenizer",
+        "Processed": len(records),
+        "Matched/Produced": len(all_tokens),
+        "Rejected": 0,
+        "Runtime (seconds)": round(token_time, 5)
+    },
+    {
+        "Pipeline Stage": "Regex Entity Extraction",
+        "Processed": regex_processed,
+        "Matched/Produced": regex_matched,
+        "Rejected": regex_rejected,
+        "Runtime (seconds)": round(regex_time, 5)
+    },
+    {
+        "Pipeline Stage": "Patient ID DFA",
+        "Processed": len(dfa_tests),
+        "Matched/Produced": sum(patient_id_dfa(x) for x in dfa_tests),
+        "Rejected": sum(not patient_id_dfa(x) for x in dfa_tests),
+        "Runtime (seconds)": 0
+    },
+    {
+        "Pipeline Stage": "NFA",
+        "Processed": len(nfa_tests),
+        "Matched/Produced": sum(nfa_accepts(x) for x in nfa_tests),
+        "Rejected": sum(not nfa_accepts(x) for x in nfa_tests),
+        "Runtime (seconds)": 0
+    },
+    {
+        "Pipeline Stage": "Morphological FST",
+        "Processed": fst_processed,
+        "Matched/Produced": fst_matched,
+        "Rejected": fst_rejected,
+        "Runtime (seconds)": round(fst_time, 5)
+    },
+    {
+        "Pipeline Stage": "Porter Stemmer",
+        "Processed": sum(token.isalpha() for token in all_tokens),
+        "Matched/Produced": len(porter_outputs),
+        "Rejected": 0,
+        "Runtime (seconds)": round(porter_time, 5)
+    }
+]
+pipeline_df = pd.DataFrame(pipeline_data)
+print("\nTASK 10: PIPELINE PERFORMANCE TABLE")
+display(pipeline_df)
+comparison_words = [
+    "played", "playing", "connected",
+    "infections", "children", "went"
+]
+comparison_data = []
+for word in comparison_words:
+    comparison_data.append({
+        "Input Word": word,
+        "FST Output": fst_analyse(word),
+        "Porter Output": porter.stem(word)
+    })
+print("\nMORPHOLOGICAL OUTPUT COMPARISON")
+display(pd.DataFrame(comparison_data))
+plt.figure(figsize=(10, 5))
+plt.bar(
+    pipeline_df["Pipeline Stage"],
+    pipeline_df["Runtime (seconds)"]
+)
+plt.title("Runtime of Each NLP Pipeline Stage")
+plt.xlabel("Pipeline Stage")
+plt.ylabel("Runtime (seconds)")
+plt.xticks(rotation=30, ha="right")
+plt.tight_layout()
+plt.show()
+plt.figure(figsize=(10, 5))
+plt.bar(
+    regex_df["Entity"],
+    regex_df["Occurrences"]
+)
+plt.title("Regular Expression Entity Extraction")
+plt.xlabel("Clinical Entity")
+plt.ylabel("Number of Occurrences")
+plt.xticks(rotation=60, ha="right")
+plt.tight_layout()
+plt.show()
+print("\nTASK 10 COMPLETED")
+print("Total records processed:", len(records))
+print("Total tokens generated:", len(all_tokens))
+print("Total pipeline runtime: {:.5f} seconds".format(
+    time.time() - start_all
+))
