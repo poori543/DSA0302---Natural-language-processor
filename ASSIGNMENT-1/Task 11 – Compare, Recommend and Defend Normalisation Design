@@ -1,0 +1,287 @@
+!pip -q install nltk pandas matplotlib
+import re
+import time
+import pandas as pd
+import matplotlib.pyplot as plt
+from nltk.stem import PorterStemmer
+porter = PorterStemmer()
+fst_lexicon = {
+    "played": "play",
+    "playing": "play",
+    "plays": "play",
+    "connected": "connect",
+    "connecting": "connect",
+    "connects": "connect",
+    "infections": "infection",
+    "infected": "infect",
+    "treatments": "treatment",
+    "treated": "treat",
+    "wounds": "wound",
+    "fractures": "fracture",
+    "medications": "medication",
+    "children": "child",
+    "went": "go",
+    "better": "good",
+    "watches": "watch",
+    "watched": "watch",
+    "watching": "watch",
+    "diagnoses": "diagnosis",
+    "symptoms": "symptom",
+    "patients": "patient",
+    "diseases": "disease",
+    "injuries": "injury",
+    "studies": "study",
+    "running": "run",
+    "runs": "run",
+    "fevers": "fever",
+    "headaches": "headache",
+    "medicines": "medicine"
+}
+def fst_normalize(word):
+    word = word.lower()
+    return fst_lexicon.get(word, word)
+def tokenize(text):
+    return re.findall(r"[A-Za-z]+", text.lower())
+
+def no_normalization(text):
+    return tokenize(text)
+
+def porter_normalization(text):
+    return [porter.stem(word) for word in tokenize(text)]
+
+def full_fst_normalization(text):
+    return [fst_normalize(word) for word in tokenize(text)]
+
+normalizers = {
+    "No Normalisation": no_normalization,
+    "Porter Stemmer": porter_normalization,
+    "Full Morphological FST": full_fst_normalization
+}
+word_pairs = [
+    ("play", "playing"),
+    ("connect", "connected"),
+    ("infection", "infections"),
+    ("treatment", "treatments"),
+    ("wound", "wounds"),
+    ("fracture", "fractures"),
+    ("medication", "medications"),
+    ("child", "children"),
+    ("go", "went"),
+    ("good", "better"),
+    ("watch", "watching"),
+    ("diagnosis", "diagnoses"),
+    ("symptom", "symptoms"),
+    ("patient", "patients"),
+    ("disease", "diseases"),
+    ("injury", "injuries"),
+    ("study", "studies"),
+    ("run", "running"),
+    ("fever", "fevers"),
+    ("headache", "headaches")
+]
+queries = []
+documents = []
+relevant_documents = {}
+for index, (base, variation) in enumerate(word_pairs):
+    for repeat in range(2):
+        query_id = len(queries)
+        query = f"Find clinical records about {base}"
+        queries.append(query)
+        relevant_id = len(documents)
+        relevant_documents[query_id] = {relevant_id}
+        documents.append(
+            f"Clinical report: Patient has {variation}. "
+            f"Doctor recorded the condition and treatment."
+        )
+        documents.append(
+            "Clinical report: Patient has normal blood pressure "
+            "and normal temperature."
+        )
+        documents.append(
+            "Hospital report: Patient visited the ward "
+            "for a routine checkup."
+        )
+        documents.append(
+            "Medical report: Laboratory test completed "
+            "with regular observations."
+        )
+print("Total search queries:", len(queries))
+print("Total documents:", len(documents))
+def retrieve(query, docs, normalize_function, top_k=3):
+    query_tokens = set(normalize_function(query))
+    scores = []
+    for doc_id, doc in enumerate(docs):
+        doc_tokens = set(normalize_function(doc))
+        common_words = query_tokens.intersection(doc_tokens)
+        score = len(common_words)
+        scores.append((doc_id, score))
+    scores.sort(key=lambda x: x[1], reverse=True)
+    results = [
+        doc_id for doc_id, score in scores
+        if score > 0
+    ]
+    return results[:top_k]
+def calculate_metrics(method_name, normalize_function):
+    total_tp = 0
+    total_fp = 0
+    total_fn = 0
+    start_time = time.time()
+    for query_id, query in enumerate(queries):
+        retrieved = retrieve(
+            query,
+            documents,
+            normalize_function,
+            top_k=3
+        )
+        relevant = relevant_documents[query_id]
+        retrieved_set = set(retrieved)
+        true_positive = len(retrieved_set.intersection(relevant))
+        false_positive = len(retrieved_set - relevant)
+        false_negative = len(relevant - retrieved_set)
+        total_tp += true_positive
+        total_fp += false_positive
+        total_fn += false_negative
+    runtime = time.time() - start_time
+    precision = (
+        total_tp / (total_tp + total_fp)
+        if total_tp + total_fp > 0 else 0
+    )
+    recall = (
+        total_tp / (total_tp + total_fn)
+        if total_tp + total_fn > 0 else 0
+    )
+    f1 = (
+        2 * precision * recall / (precision + recall)
+        if precision + recall > 0 else 0
+    )
+    return {
+        "Method": method_name,
+        "Precision": round(precision, 4),
+        "Recall": round(recall, 4),
+        "F1-Score": round(f1, 4),
+        "Runtime (seconds)": round(runtime, 5)
+    }
+results = []
+for method_name, normalize_function in normalizers.items():
+    result = calculate_metrics(
+        method_name,
+        normalize_function
+    )
+    results.append(result)
+results_df = pd.DataFrame(results)
+print("\nTASK 11: INFORMATION RETRIEVAL COMPARISON")
+display(results_df)
+all_words = []
+for doc in documents:
+    all_words.extend(tokenize(doc))
+
+unique_words = set(all_words)
+recognized_words = {
+    word for word in unique_words
+    if word in fst_lexicon
+}
+fst_coverage = (
+    len(recognized_words) / len(unique_words) * 100
+    if unique_words else 0
+)
+coverage_df = pd.DataFrame([
+    {
+        "Method": "No Normalisation",
+        "Processing Coverage (%)": 100,
+        "Lexicon Coverage (%)": 0
+    },
+    {
+        "Method": "Porter Stemmer",
+        "Processing Coverage (%)": 100,
+        "Lexicon Coverage (%)": 0
+    },
+    {
+        "Method": "Full Morphological FST",
+        "Processing Coverage (%)": 100,
+        "Lexicon Coverage (%)": round(fst_coverage, 2)
+    }
+])
+print("\nCOVERAGE COMPARISON")
+display(coverage_df)
+maintenance_df = pd.DataFrame([
+    {
+        "Method": "No Normalisation",
+        "Maintenance Effort": "Low",
+        "Explanation": "No stemming rules or lexicon required"
+    },
+    {
+        "Method": "Porter Stemmer",
+        "Maintenance Effort": "Low",
+        "Explanation": "Uses predefined stemming rules"
+    },
+    {
+        "Method": "Full Morphological FST",
+        "Maintenance Effort": "High",
+        "Explanation": "Requires lexicon, affixes and irregular forms"
+    }
+])
+print("\nMAINTENANCE EFFORT COMPARISON")
+display(maintenance_df)
+metrics_plot = results_df.set_index("Method")[
+    ["Precision", "Recall", "F1-Score"]
+]
+metrics_plot.plot(
+    kind="bar",
+    figsize=(10, 5)
+)
+plt.title("Comparison of Normalisation Methods")
+plt.xlabel("Normalisation Method")
+plt.ylabel("Score")
+plt.ylim(0, 1.1)
+plt.xticks(rotation=15)
+plt.tight_layout()
+plt.show()
+plt.figure(figsize=(9, 5))
+plt.bar(
+    results_df["Method"],
+    results_df["Runtime (seconds)"]
+)
+plt.title("Execution Time Comparison")
+plt.xlabel("Normalisation Method")
+plt.ylabel("Runtime (seconds)")
+plt.xticks(rotation=15)
+plt.tight_layout()
+plt.show()
+plt.figure(figsize=(9, 5))
+plt.bar(
+    coverage_df["Method"],
+    coverage_df["Lexicon Coverage (%)"]
+)
+plt.title("FST Lexicon Coverage Comparison")
+plt.xlabel("Normalisation Method")
+plt.ylabel("Lexicon Coverage (%)")
+plt.xticks(rotation=15)
+plt.tight_layout()
+plt.show()
+print("\nFINAL RECOMMENDATION")
+print("----------------------------------------")
+print("""
+1. No Normalisation:
+   - Simple and fast.
+   - Does not identify different forms of the same word.
+   - May reduce search results when words have different endings.
+2. Porter Stemmer:
+   - Removes common suffixes.
+   - Improves matching of many inflected words.
+   - May produce incorrect stems for medical terminology.
+   - Does not properly handle every irregular word.
+3. Full Morphological FST:
+   - Uses a lexicon and morphological rules.
+   - Can handle known inflected and irregular forms.
+   - Provides more meaningful base forms when the lexicon is correct.
+   - Requires more time to build and maintain.
+RECOMMENDATION:
+For a hospital record search system, a full
+morphological FST is recommended when a reliable
+clinical lexicon is available. A hybrid approach
+using FST analysis with Porter Stemmer as a fallback
+for unknown words can improve practical coverage.
+Clinical terminology must be reviewed by domain
+experts before deployment.
+""")
+print("TASK 11 COMPLETED")
