@@ -1,0 +1,42 @@
+
+import nltk, random, math, re
+from collections import Counter, defaultdict
+from nltk.util import ngrams
+
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger_eng')
+
+corpus = [
+ "book two tickets to vellore",
+ "bus timing from chennai to vellore",
+ "what is the fare to madurai",
+ "train starts at six thirty",
+ "cancel my ticket tomorrow",
+ "return ticket from chennai",
+ "bus arrives at the station",
+ "book a ticket to chennai",
+ "train fare from vellore",
+ "when does the bus leave",
+ "refund my ticket please",
+ "bus from madurai to chennai"
+] * 100
+
+random.seed(42)
+random.shuffle(corpus)
+train = corpus[:int(.8*len(corpus))]
+dev = corpus[int(.8*len(corpus)):int(.9*len(corpus))]
+test = corpus[int(.9*len(corpus)):]
+
+print("Corpus:", len(corpus), "Train:", len(train), "Dev:", len(dev), "Test:", len(test))
+
+tokens = " ".join(train).lower().split()
+freq = Counter(tokens)
+
+print("Tokens:", len(tokens))
+print("Types:", len(set(tokens)))
+print("Top words:", freq.most_common(10))
+
+for threshold in [1,2,3,5]:
+    vocab = {w for w,c in freq.items() if c >= threshold}
+    unk = sum(c for w,c in freq.items() if c < threshold)
+    print(threshold, "Vocab:", len(vocab), "UNK tokens:", unk)
