@@ -1,0 +1,7 @@
+train_vocab = {"chennai","bus","timing","madurai","to","vellore"}
+
+sentence = "chennai to madurai bus timing enna".split()
+unknown = [w for w in sentence if w not in train_vocab]
+
+print("Unknown words:", unknown)
+print("OOV rate:", len(unknown)/len(sentence)*100)
