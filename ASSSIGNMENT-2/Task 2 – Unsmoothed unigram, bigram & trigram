@@ -1,0 +1,22 @@
+
+from collections import Counter
+
+uni, bi, tri = Counter(), Counter(), Counter()
+for s in train:
+    w = ["<s>"] + s.split() + ["</s>"]
+    uni.update(w)
+    bi.update(ngrams(w,2))
+    tri.update(ngrams(w,3))
+
+def prob1(w):
+    return uni[w]/sum(uni.values())
+
+def prob2(a,b):
+    return bi[(a,b)]/uni[a] if uni[a] else 0
+
+def prob3(a,b,c):
+    return tri[(a,b,c)]/bi[(a,b)] if bi[(a,b)] else 0
+
+print("Unigram:", prob1("bus"))
+print("Bigram:", prob2("book","a"))
+print("Trigram:", prob3("book","a","ticket"))
