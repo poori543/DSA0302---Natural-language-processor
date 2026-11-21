@@ -1,0 +1,10 @@
+import matplotlib.pyplot as plt
+
+models = ["Unigram","Bigram","Trigram"]
+ppl = [15,10,7]
+
+print(list(zip(models,ppl)))
+plt.plot(models,ppl,marker="o")
+plt.ylabel("Perplexity")
+plt.title("N-gram Model Comparison")
+plt.show()
