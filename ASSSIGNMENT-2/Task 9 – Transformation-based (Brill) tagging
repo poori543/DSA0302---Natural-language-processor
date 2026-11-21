@@ -1,0 +1,16 @@
+
+from nltk.tag import brill, brill_trainer
+from nltk.tag import UnigramTagger, BrillTaggerTrainer
+from nltk.tag.brill import PositionalRule, Template
+
+tagged_sentences = [
+    nltk.pos_tag(s.split()) for s in train[:100]
+]
+
+templates = brill.fntbl37()
+initial = UnigramTagger(tagged_sentences)
+trainer = BrillTaggerTrainer(initial, templates, trace=0)
+
+brill_tagger = trainer.train(tagged_sentences, max_rules=10)
+print(brill_tagger.tag("book a bus to vellore".split()))
+print("Rules:", brill_tagger.rules())
