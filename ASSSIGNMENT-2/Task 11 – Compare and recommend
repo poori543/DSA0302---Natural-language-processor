@@ -1,0 +1,8 @@
+models = {
+ "Language Model":"Interpolated Bigram",
+ "POS Tagger":"HMM",
+ "Reason":"Context + unseen-word handling"
+}
+
+for k,v in models.items():
+    print(k,":",v)
