@@ -1,0 +1,11 @@
+
+sentence = "book a bus ticket to vellore"
+words = sentence.split()
+
+# NLTK's pretrained statistical POS tagger
+tagged = nltk.pos_tag(words)
+print("HMM-style statistical POS tagging:")
+print(tagged)
+
+# Viterbi demo using NLTK tagger
+print("Tagged sequence:", [t for w,t in tagged])
