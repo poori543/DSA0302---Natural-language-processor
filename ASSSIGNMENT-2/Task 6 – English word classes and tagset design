@@ -1,0 +1,9 @@
+
+tagset = {
+ "book":"VB", "tickets":"NNS", "bus":"NN",
+ "to":"TO", "from":"IN", "my":"PRP$",
+ "cancel":"VB", "train":"NN", "the":"DT"
+}
+
+for word, tag in tagset.items():
+    print(word, "->", tag)
