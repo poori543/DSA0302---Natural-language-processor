@@ -1,0 +1,32 @@
+import nltk
+from nltk.tag import UnigramTagger
+from nltk.tag import brill, brill_trainer
+
+nltk.download('averaged_perceptron_tagger_eng')
+
+# Training data
+sentences = [
+    "book a bus ticket",
+    "book two tickets",
+    "bus goes to vellore",
+    "train goes to chennai",
+    "cancel my ticket",
+    "the bus arrives today"
+]
+
+tagged_sentences = [nltk.pos_tag(s.split()) for s in sentences]
+
+# Initial tagger
+initial_tagger = UnigramTagger(tagged_sentences)
+
+# Brill templates
+templates = brill.fntbl37()
+
+# Train transformation-based tagger
+trainer = brill_trainer.BrillTaggerTrainer(initial_tagger, templates, trace=0)
+brill_tagger = trainer.train(tagged_sentences, max_rules=10)
+
+# Test
+test_sentence = "book a bus to vellore".split()
+print("Tagged Output:", brill_tagger.tag(test_sentence))
+print("Learned Rules:", brill_tagger.rules())
