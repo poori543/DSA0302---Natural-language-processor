@@ -1,0 +1,12 @@
+
+V = len(set(tokens))
+
+def laplace(a,b):
+    return (bi[(a,b)]+1)/(uni[a]+V)
+
+def add_k(a,b,k=0.1):
+    return (bi[(a,b)]+k)/(uni[a]+k*V)
+
+print("Laplace:", laplace("bus","to"))
+print("Add-k:", add_k("bus","to"))
+print("Unseen:", laplace("bus","xyz"))
