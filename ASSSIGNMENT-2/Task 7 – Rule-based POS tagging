@@ -1,0 +1,13 @@
+
+def rule_tag(words):
+    result = []
+    for w in words:
+        if w in ["to","from","at","in"]: t="IN"
+        elif w.endswith("ing"): t="VBG"
+        elif w in ["book","cancel","refund"]: t="VB"
+        elif w in ["the","a","my"]: t="DT"
+        else: t="NN"
+        result.append((w,t))
+    return result
+
+print(rule_tag("book a bus ticket to vellore".split()))
