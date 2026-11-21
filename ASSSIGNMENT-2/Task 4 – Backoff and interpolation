@@ -1,0 +1,11 @@
+
+def backoff(a,b):
+    if bi[(a,b)]:
+        return prob2(a,b)
+    return prob1(b)
+
+def interpolate(a,b):
+    return 0.6*prob2(a,b) + 0.3*prob1(b) + 0.1*(1/V)
+
+print("Backoff:", backoff("bus","to"))
+print("Interpolation:", interpolate("bus","to"))
