@@ -1,0 +1,4 @@
+print("Top-down: Simple, but struggles with ambiguity")
+print("Earley: Handles ambiguity and left recursion")
+print("PCFG: Selects the most probable parse")
+print("Recommended: Earley + PCFG")
