@@ -1,0 +1,6 @@
+parser = EarleyChartParser(grammar)
+sent = "the student check the fee".split()
+trees = list(parser.parse(sent))
+print("Parse found:", bool(trees))
+print("Number of parses:", len(trees))
+print(trees[0])
