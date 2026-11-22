@@ -1,0 +1,8 @@
+from nltk import FeatStruct
+
+a = FeatStruct(NUM='sg', CASE='nom')
+b = FeatStruct(NUM='sg', CASE='nom')
+c = FeatStruct(NUM='pl', CASE='nom')
+
+print("Match:", a.unify(b))
+print("Mismatch:", a.unify(c))
