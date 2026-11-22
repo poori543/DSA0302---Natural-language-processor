@@ -1,0 +1,10 @@
+frames = {
+    "crash": "Intransitive",
+    "submit": "Transitive",
+    "send": "Ditransitive",
+    "tell": "Sentence complement",
+    "apply": "PP complement"
+}
+
+for v, f in frames.items():
+    print(v, "->", f)
