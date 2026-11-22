@@ -1,0 +1,9 @@
+tests = [
+    ("the student checks the fee", True),
+    ("the students check the fee", True),
+    ("the student check the fee", False),
+    ("the students checks the fee", False)
+]
+
+for s, expected in tests:
+    print(s, "->", expected)
