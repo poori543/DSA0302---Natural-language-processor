@@ -1,0 +1,21 @@
+import nltk
+from nltk import CFG, ChartParser, RecursiveDescentParser, EarleyChartParser
+from nltk.tree import Tree
+grammar = CFG.fromstring("""
+S -> NP VP
+S -> VP
+NP -> Det N
+NP -> N
+VP -> V NP
+VP -> V PP
+VP -> V
+PP -> P NP
+Det -> 'the' | 'a'
+N -> 'student' | 'bus' | 'fee' | 'ticket' | 'library'
+V -> 'check' | 'book' | 'pay' | 'show'
+P -> 'at' | 'to'
+""")
+print("Grammar loaded successfully")
+print(grammar)
+print("Start symbol:", grammar.start())
+print("Rules:", len(grammar.productions()))
