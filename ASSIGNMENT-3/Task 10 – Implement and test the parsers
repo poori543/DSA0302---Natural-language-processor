@@ -1,0 +1,37 @@
+from nltk import CFG, PCFG
+from nltk.parse import RecursiveDescentParser, EarleyChartParser, ViterbiParser
+
+# CFG grammar
+grammar = CFG.fromstring("""
+S -> NP VP
+NP -> Det N | N
+VP -> V NP | V
+Det -> 'the' | 'a'
+N -> 'student' | 'fee' | 'bus' | 'ticket'
+V -> 'check' | 'book' | 'pay'
+""")
+
+sent = "the student check the fee".split()
+
+# Top-down parser
+td = RecursiveDescentParser(grammar)
+print("Top-down:", bool(list(td.parse(sent))))
+
+# Earley parser
+ep = EarleyChartParser(grammar)
+trees = list(ep.parse(sent))
+print("Earley:", bool(trees), "Parses:", len(trees))
+
+# PCFG
+pg = PCFG.fromstring("""
+S -> NP VP [1.0]
+NP -> Det N [0.6] | N [0.4]
+VP -> V NP [0.8] | V [0.2]
+Det -> 'the' [0.5] | 'a' [0.5]
+N -> 'student' [0.5] | 'fee' [0.5]
+V -> 'check' [0.5] | 'pay' [0.5]
+""")
+
+vp = ViterbiParser(pg)
+pcfg_sent = "the student check the fee".split()
+print("PCFG:", bool(list(vp.parse(pcfg_sent))))
