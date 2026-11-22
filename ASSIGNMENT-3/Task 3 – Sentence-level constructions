@@ -1,0 +1,7 @@
+sentences = [
+    "the student check the fee",
+    "the student book the ticket",
+    "the student pay the fee"
+]
+for s in sentences:
+    print(s, "->", bool(list(parser.parse(s.split()))))
