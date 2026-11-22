@@ -1,0 +1,16 @@
+from nltk import PCFG
+from nltk.parse import ViterbiParser
+pg = PCFG.fromstring("""
+S -> NP VP [1.0]
+NP -> Det N [0.6] | N [0.4]
+VP -> V NP [0.8] | V [0.2]
+Det -> 'the' [0.5] | 'a' [0.5]
+N -> 'student' [0.5] | 'fee' [0.5]
+V -> 'checks' [0.5] | 'pays' [0.5]
+""")
+parser = ViterbiParser(pg)
+sent = "the student checks the fee".split()
+for tree in parser.parse(sent):
+    print(tree)
+    print("Probability:", round(tree.prob(), 5))
+    break
