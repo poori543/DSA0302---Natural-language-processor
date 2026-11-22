@@ -1,0 +1,6 @@
+parser = ChartParser(grammar)
+sent = "the student check the fee".split()
+for tree in parser.parse(sent):
+    print(tree)
+    tree.pretty_print()
+    break
