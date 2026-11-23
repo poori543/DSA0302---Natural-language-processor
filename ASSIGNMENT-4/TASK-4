@@ -1,0 +1,40 @@
+# Categories, Events, Time and Roles
+
+categories = {
+    "Employee": ["Ravi", "Arun"],
+    "Pensioner": ["Ravi"],
+    "Dependent": ["Meena"],
+    "FamilyPensioner": ["Meena"]
+}
+
+events = [
+    {"event": "Retirement", "person": "Ravi", "year": 2019},
+    {"event": "Application", "person": "Ravi", "year": 2020},
+    {"event": "Approval", "person": "Ravi", "year": 2020},
+    {"event": "Payment", "person": "Ravi", "year": 2021},
+    {"event": "Notification", "person": "Meena", "year": 2024}
+]
+
+for category, people in categories.items():
+    print(category, ":", people)
+
+print("\nEvents:")
+for event in events:
+    print(event)
+
+# Named Entity Recognition
+import re
+
+text = """
+Ravi retired on 2019-06-30.
+Circular 12 was issued in 2020.
+Pension amount is Rs 18000.
+"""
+
+dates = re.findall(r'\d{4}-\d{2}-\d{2}', text)
+circulars = re.findall(r'Circular \d+', text)
+money = re.findall(r'Rs \d+', text)
+
+print("\nDates:", dates)
+print("Circulars:", circulars)
+print("Money:", money)
