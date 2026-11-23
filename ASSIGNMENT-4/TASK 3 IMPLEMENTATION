@@ -1,0 +1,35 @@
+# FOPC Knowledge Base
+
+facts = {
+    ("Employee", "Ravi"),
+    ("Retired", "Ravi"),
+    ("Employee", "Arun"),
+    ("Dependent", "Meena")
+}
+
+rules = [
+    ("Employee", "Retired", "Eligible"),
+    ("Dependent", "FamilyPension")
+]
+
+# Inference
+derived = set(facts)
+
+for person in ["Ravi", "Arun", "Meena"]:
+    if ("Employee", person) in facts and ("Retired", person) in facts:
+        derived.add(("Eligible", person))
+
+    if ("Dependent", person) in facts:
+        derived.add(("FamilyPension", person))
+
+print("Knowledge Base:")
+for fact in sorted(derived):
+    print(fact)
+
+print("\nFOPC Statements:")
+print("1. Employee(x) -> Person(x)")
+print("2. Retired(x) AND Employee(x) -> Eligible(x)")
+print("3. Dependent(x) -> FamilyPension(x)")
+print("4. NOT Employee(x) -> NOT EmployeePensionEligible(x)")
+print("5. EXISTS x Employee(x)")
+print("6. FOR ALL x Employee(x) -> Person(x)")
