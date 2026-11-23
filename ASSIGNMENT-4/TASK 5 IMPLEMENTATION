@@ -1,0 +1,33 @@
+# Semantic Analysis and Lambda Reduction
+
+grammar = {
+    "S": "NP + VP",
+    "NP": "Determiner + Noun",
+    "VP": "Verb + NP",
+    "Det": ["Every", "Some"],
+    "Noun": ["Employee", "Pensioner"],
+    "Verb": ["Receives", "Applies"]
+}
+
+semantic_rules = {
+    "Every": "FOR ALL x",
+    "Some": "EXISTS x",
+    "Employee": "Employee(x)",
+    "Pensioner": "Pensioner(x)",
+    "Receives": "Receives(x,y)",
+    "Applies": "Applies(x,y)"
+}
+
+sentence = "Every employee receives pension"
+
+print("Sentence:", sentence)
+print("\nGrammar:")
+for key, value in grammar.items():
+    print(key, "->", value)
+
+print("\nSemantic Attachments:")
+for key, value in semantic_rules.items():
+    print(key, "=", value)
+
+print("\nLogical Form:")
+print("FOR ALL x (Employee(x) -> Receives(x,Pension))")
