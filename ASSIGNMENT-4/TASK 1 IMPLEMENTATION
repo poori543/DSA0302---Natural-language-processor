@@ -1,0 +1,39 @@
+# Meaning Representation
+
+# First Order Logic
+fol = "Employee(x) AND Retired(x) AND Service(x, 10) -> Eligible(x)"
+
+# Semantic Network
+network = [
+    ("Ravi", "is_a", "Employee"),
+    ("Ravi", "has_service", 12),
+    ("Employee", "is_a", "Person")
+]
+
+# Frame Representation
+pension_frame = {
+    "Name": "Ravi",
+    "Category": "Employee",
+    "Service": 12,
+    "Retired": True,
+    "Eligible": True
+}
+
+print("FOPC:", fol)
+print("Semantic Network:", network)
+print("Frame:", pension_frame)
+
+# Pipeline
+pipeline = [
+    "Input Enquiry",
+    "Tokenization",
+    "Parsing",
+    "Semantic Analysis",
+    "Logical Representation",
+    "Inference",
+    "Answer"
+]
+
+print("\nHelpdesk Pipeline:")
+for step in pipeline:
+    print(step)
