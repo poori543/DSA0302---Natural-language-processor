@@ -1,0 +1,36 @@
+def surface_realisation(
+    incident, location, status, action
+):
+    sentence = (
+        "A " + incident + " was reported at "
+        + location + ". "
+        + "The current status is "
+        + status + ". "
+        + "Citizens should "
+        + action + "."
+    )
+    return sentence
+print(surface_realisation(
+    "flood", "North Road", "closed",
+    "use the bypass"
+))
+print(surface_realisation(
+    "fire", "Old Market", "controlled",
+    "avoid the area"
+))
+print(surface_realisation(
+    "tree fall", "Market Street", "road blocked",
+    "follow traffic diversion"
+))
+print(surface_realisation(
+    "power failure", "Green Park", "under repair",
+    "report electrical hazards"
+))
+print(surface_realisation(
+    "heavy rain", "River Colony", "water rising",
+    "move to a safe place"
+))
+print(surface_realisation(
+    "bridge damage", "West Bridge", "unsafe",
+    "use another route"
+))
