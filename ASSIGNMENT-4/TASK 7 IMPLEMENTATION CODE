@@ -1,0 +1,36 @@
+# Simplified Lesk Algorithm
+
+from collections import Counter
+import re
+
+glosses = {
+    "employment": "employee job work retirement service years",
+    "public": "government department public administration",
+    "assistance": "help support customer service enquiry"
+}
+
+def lesk(sentence):
+    words = set(re.findall(r'\w+', sentence.lower()))
+
+    scores = {}
+
+    for sense, gloss in glosses.items():
+        gloss_words = set(gloss.split())
+        scores[sense] = len(words & gloss_words)
+
+    selected = max(scores, key=scores.get)
+
+    return selected, scores
+
+queries = [
+    "Employee completed twenty years of service",
+    "Government public service department",
+    "Customer service provides help and support"
+]
+
+for query in queries:
+    sense, scores = lesk(query)
+
+    print("\nQuery:", query)
+    print("Overlap:", scores)
+    print("Selected Sense:", sense)
