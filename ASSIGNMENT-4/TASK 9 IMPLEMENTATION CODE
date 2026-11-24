@@ -1,0 +1,26 @@
+# Annotation and Cohen's Kappa
+
+from sklearn.metrics import cohen_kappa_score, accuracy_score
+
+annotator1 = [
+    "employment", "public", "assistance",
+    "employment", "public", "employment"
+]
+
+annotator2 = [
+    "employment", "public", "assistance",
+    "public", "public", "employment"
+]
+
+agreement = accuracy_score(annotator1, annotator2)
+
+kappa = cohen_kappa_score(annotator1, annotator2)
+
+print("Raw Agreement:", round(agreement, 3))
+print("Cohen's Kappa:", round(kappa, 3))
+
+print("\nAnnotation Guidelines:")
+print("1. Identify the correct word meaning.")
+print("2. Compare two annotators.")
+print("3. Record disagreements.")
+print("4. Prepare final gold-standard labels.")
