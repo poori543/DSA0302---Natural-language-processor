@@ -1,0 +1,22 @@
+import re
+text = """
+Heavy rain flooded North Road.
+It blocked the road.
+Police arrived at the location.
+They helped the residents.
+The relief camp is open.
+It provides food and water.
+"""
+sentences = text.strip().split("\n")
+entities = []
+for sentence in sentences:
+    words = re.findall(r'\b[A-Za-z]+\b', sentence)
+    for word in words:
+        if word.lower() in ["it", "they", "them", "this", "that"]:
+            if entities:
+                print(word, "refers to:", entities[-1])
+        elif word.lower() not in [
+            "the", "and", "at", "is", "of", "to"
+        ]:
+            entities.append(word)
+print("\nReference resolution completed.")
