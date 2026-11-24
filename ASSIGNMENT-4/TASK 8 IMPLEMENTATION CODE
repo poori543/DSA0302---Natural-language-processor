@@ -1,0 +1,37 @@
+# TF-IDF and Information Retrieval
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+circulars = [
+    "Employees qualify for pension after ten years of service",
+    "Family pension is provided to eligible dependents",
+    "Pension amount depends on salary and service",
+    "Breaks in service affect qualifying service",
+    "Retirement date determines pension eligibility",
+    "Nominees can apply for family pension"
+]
+
+vectorizer = TfidfVectorizer(stop_words='english')
+
+matrix = vectorizer.fit_transform(circulars)
+
+query = ["Who qualifies for family pension?"]
+
+query_vector = vectorizer.transform(query)
+
+similarity = cosine_similarity(query_vector, matrix)
+
+print("TF-IDF Matrix:")
+print(matrix.toarray())
+
+print("\nSearch Results:")
+
+for i, score in enumerate(similarity[0]):
+    print("Circular", i+1, "Score:", round(score, 3))
+
+best = similarity[0].argmax()
+
+print("\nBest Matching Circular:")
+print(circulars[best])
+
