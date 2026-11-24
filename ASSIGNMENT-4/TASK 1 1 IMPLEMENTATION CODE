@@ -1,0 +1,33 @@
+# Compare Three Approaches
+
+methods = {
+    "Keyword Retrieval": {
+        "Accuracy": 75,
+        "Coverage": 90,
+        "Speed": "Fast"
+    },
+
+    "Sense Aware Retrieval": {
+        "Accuracy": 85,
+        "Coverage": 85,
+        "Speed": "Medium"
+    },
+
+    "Logical Representation": {
+        "Accuracy": 95,
+        "Coverage": 70,
+        "Speed": "Medium"
+    }
+}
+
+print("Method Comparison\n")
+
+for method, values in methods.items():
+    print(method)
+    print(values)
+    print()
+
+print("Recommendation:")
+print("Use a Hybrid Semantic Helpdesk System.")
+print("Combine logical inference and information retrieval.")
+
