@@ -1,0 +1,37 @@
+incidents = [
+    {
+        "incident": "Flood",
+        "location": "North Road",
+        "status": "Closed",
+        "action": "Use the bypass road"
+    },
+    {
+        "incident": "Fire",
+        "location": "Old Market",
+        "status": "Controlled",
+        "action": "Avoid the area"
+    },
+    {
+        "incident": "Tree Fall",
+        "location": "Market Street",
+        "status": "Road blocked",
+        "action": "Follow traffic diversion"
+    }
+]
+def generate_bulletin(data):
+    sentence1 = (
+        data["incident"] + " was reported at "
+        + data["location"] + "."
+    )
+    sentence2 = (
+        "Current status is "
+        + data["status"] + "."
+    )
+    sentence3 = (
+        "Citizens should "
+        + data["action"] + "."
+    )
+    return sentence1 + " " + sentence2 + " " + sentence3
+for incident in incidents:
+    print("\nGenerated Bulletin:")
+    print(generate_bulletin(incident))
