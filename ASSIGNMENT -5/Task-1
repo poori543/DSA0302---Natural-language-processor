@@ -1,0 +1,33 @@
+import re
+
+reports = [
+    "Heavy rain flooded North Road. It is closed near the bridge.",
+    "A tree fell on Market Street. It blocked the road.",
+    "The relief camp is open. It provides food and water.",
+    "Power failed in Green Park. Engineers are repairing it.",
+    "A bus broke down. It blocked one lane.",
+    "Water levels increased. Residents moved to shelters.",
+    "A fire occurred in the market. Firefighters controlled it.",
+    "The bridge is unsafe. It will remain closed.",
+    "A health team arrived. They provide medical support.",
+    "Strong winds damaged poles. They need repair."
+]
+
+for i, report in enumerate(reports, 1):
+    sentences = re.split(r'(?<=[.!?])\s+', report)
+    print("\nReport", i)
+    for sentence in sentences:
+        print("Discourse Unit:", sentence)
+
+cross_reference = 0
+
+for report in reports:
+    sentences = re.split(r'(?<=[.!?])\s+', report)
+    if any(re.search(r'\b(it|they|them|this|that)\b',
+                     s.lower()) for s in sentences[1:]):
+        cross_reference += 1
+
+print("\nReports containing cross-sentence references:",
+      cross_reference)
+print("Percentage:", cross_reference / len(reports) * 100)
+
