@@ -1,0 +1,53 @@
+# Temporal Logic and Service Aggregation
+
+from datetime import date
+
+rules = [
+    {
+        "scheme": "Old Scheme",
+        "start": date(2000, 1, 1),
+        "end": date(2023, 12, 31),
+        "minimum_service": 10
+    },
+    {
+        "scheme": "New Scheme",
+        "start": date(2024, 1, 1),
+        "end": date(9999, 12, 31),
+        "minimum_service": 8
+    }
+]
+
+def check_pension(name, retirement_date, service_periods, breaks):
+    retirement = date.fromisoformat(retirement_date)
+
+    total_service = sum(service_periods) - sum(breaks)
+
+    applicable_rule = None
+
+    for rule in rules:
+        if rule["start"] <= retirement <= rule["end"]:
+            applicable_rule = rule
+            break
+
+    if applicable_rule is None:
+        return "No applicable rule found"
+
+    print("Name:", name)
+    print("Retirement Date:", retirement)
+    print("Scheme:", applicable_rule["scheme"])
+    print("Total Qualifying Service:", total_service)
+
+    if total_service >= applicable_rule["minimum_service"]:
+        return "Eligible for Pension"
+
+    return "Not Eligible for Pension"
+
+
+result = check_pension(
+    "Ravi",
+    "2019-06-30",
+    [5, 4, 3],
+    [1, 1]
+)
+
+print("Final Result:", result)
