@@ -1,0 +1,31 @@
+systems = {
+    "Hobbs Resolver": {
+        "accuracy": 85,
+        "speed": 70,
+        "robustness": 80
+    },
+    "Rule Based Resolver": {
+        "accuracy": 75,
+        "speed": 90,
+        "robustness": 70
+    },
+    "Frame Based Dialogue": {
+        "accuracy": 90,
+        "speed": 85,
+        "robustness": 90
+    },
+    "Template Generation": {
+        "accuracy": 95,
+        "speed": 95,
+        "robustness": 90
+    }
+}
+for name, values in systems.items():
+    print("\nSystem:", name)
+    for metric, score in values.items():
+        print(metric, ":", score)
+print("\nRecommended Design:")
+print("Frame-based dialogue management")
+print("Rule-assisted reference resolution")
+print("Template-based generation")
+print("Confidence-based translation review")
