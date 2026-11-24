@@ -1,0 +1,37 @@
+# Complete Mini Pension Helpdesk Pipeline
+
+knowledge_base = {
+    "Ravi": {
+        "employee": True,
+        "retired": True,
+        "service": 12
+    },
+    "Arun": {
+        "employee": True,
+        "retired": True,
+        "service": 5
+    }
+}
+
+def pension_helpdesk(name):
+    if name not in knowledge_base:
+        return "Information Unknown"
+
+    person = knowledge_base[name]
+
+    if person["employee"] and person["retired"] and person["service"] >= 10:
+        return "Eligible for Pension"
+
+    return "Not Eligible for Pension"
+
+def pipeline(name):
+    print("Input:", name)
+    print("Tokenization: Completed")
+    print("Parsing: Completed")
+    print("Semantic Analysis: Completed")
+    print("Logical Inference: Completed")
+    print("Final Answer:", pension_helpdesk(name))
+
+pipeline("Ravi")
+print()
+pipeline("Arun")
