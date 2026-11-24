@@ -1,0 +1,24 @@
+# Lexemes and WordNet
+
+import nltk
+nltk.download('wordnet')
+
+from nltk.corpus import wordnet
+
+words = ["service", "award", "dependent", "pension", "family"]
+
+for word in words:
+    print("\nWord:", word)
+
+    senses = wordnet.synsets(word)
+
+    for sense in senses[:5]:
+        print("Sense:", sense.name())
+        print("Meaning:", sense.definition())
+
+# Ambiguity and Vagueness
+print("\nAmbiguity:")
+print("Service = Employment service or customer service")
+
+print("\nVagueness:")
+print("Long service = No exact duration specified")
