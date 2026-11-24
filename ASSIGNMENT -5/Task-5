@@ -1,0 +1,37 @@
+states = {
+    "START": ["location"],
+    "LOCATION": ["check camp"],
+    "CHECK CAMP": ["confirm"],
+    "CONFIRM": ["END"],
+    "END": []
+}
+
+state = "START"
+
+while state != "END":
+
+    print("\nCurrent State:", state)
+
+    if state == "START":
+        print("Agent: Which area are you in?")
+        input("Caller: ")
+        state = "LOCATION"
+
+    elif state == "LOCATION":
+        print("Agent: Checking nearest relief camp.")
+        state = "CHECK CAMP"
+
+    elif state == "CHECK CAMP":
+        print("Agent: Central School relief camp is open.")
+        state = "CONFIRM"
+
+    elif state == "CONFIRM":
+        answer = input("Agent: Do you need the location? ")
+
+        if answer.lower() == "cancel":
+            state = "END"
+        else:
+            print("Agent: Location details provided.")
+            state = "END"
+
+print("\nDialogue completed.")
