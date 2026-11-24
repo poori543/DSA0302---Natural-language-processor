@@ -1,0 +1,40 @@
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+sentences = [
+    "Where is the relief camp?",
+    "Is the road open?",
+    "The camp is open.",
+    "The bridge is closed.",
+    "Please send help.",
+    "Arrange a bus.",
+    "Thank you.",
+    "Okay.",
+    "Cancel my request.",
+    "I will send help.",
+    "Can you help me?",
+    "Water level is increasing."
+]
+labels = [
+    "QUESTION", "QUESTION",
+    "INFORM", "INFORM",
+    "REQUEST", "REQUEST",
+    "THANK", "ACK",
+    "CANCEL", "COMMIT",
+    "QUESTION", "INFORM"
+]
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(sentences)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, labels, test_size=0.25, random_state=42
+)
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)
+print("Accuracy:",
+      accuracy_score(y_test, predictions))
+new_sentence = ["Please arrange medical help"]
+new_data = vectorizer.transform(new_sentence)
+print("Predicted Dialogue Act:",
+      model.predict(new_data)[0])
