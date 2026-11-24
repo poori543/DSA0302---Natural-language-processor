@@ -1,0 +1,39 @@
+from collections import Counter
+english = [
+    "the road is closed",
+    "the camp is open",
+    "police help people",
+    "the bridge is unsafe"
+]
+telugu = [
+    "రోడ్డు మూసివేయబడింది",
+    "శిబిరం తెరిచి ఉంది",
+    "పోలీసులు ప్రజలకు సహాయం చేస్తారు",
+    "వంతెన సురక్షితం కాదు"
+]
+translation_dictionary = {
+    "the": "ఆ",
+    "road": "రోడ్డు",
+    "is": "ఉంది",
+    "closed": "మూసివేయబడింది",
+    "camp": "శిబిరం",
+    "open": "తెరిచి",
+    "police": "పోలీసులు",
+    "help": "సహాయం",
+    "people": "ప్రజలు",
+    "bridge": "వంతెన",
+    "unsafe": "సురక్షితం కాదు"
+}
+def translate(sentence):
+    words = sentence.split()
+    translated = []
+
+    for word in words:
+        translated.append(
+            translation_dictionary.get(word, word)
+        )
+    return " ".join(translated)
+for sentence in english:
+    print("English:", sentence)
+    print("Telugu:", translate(sentence))
+    print()
