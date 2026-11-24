@@ -1,0 +1,18 @@
+import re
+text = """
+Heavy rain flooded North Road.
+The road was closed.
+Police diverted traffic.
+Residents moved to shelters.
+"""
+sentences = re.split(r'(?<=[.!?])\s+', text.strip())
+print("RST Discourse Tree\n")
+print("ROOT: Elaboration")
+for i, sentence in enumerate(sentences):
+    if i == 0:
+        print("   NUCLEUS:", sentence)
+    else:
+        print("   SATELLITE:", sentence)
+        print("   Relation: Elaboration")
+print("\nNucleus Based Summary:")
+print(sentences[0])
