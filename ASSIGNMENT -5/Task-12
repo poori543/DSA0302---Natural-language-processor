@@ -1,0 +1,60 @@
+threads = [
+    {
+        "speaker": "Asha",
+        "message": "The bridge is closed."
+    },
+    {
+        "speaker": "Ravi",
+        "message": "It is near the school."
+    },
+    {
+        "speaker": "Meena",
+        "message": "They moved our family there."
+    },
+    {
+        "speaker": "Caller",
+        "message": "Camp open aa?"
+    },
+    {
+        "speaker": "Agent",
+        "message": "Yes, camp is open."
+    },
+    {
+        "speaker": "Caller",
+        "message": "Road cloz near brij."
+    }
+]
+
+def process_thread(threads):
+
+    for item in threads:
+
+        print("\nSpeaker:", item["speaker"])
+        print("Message:", item["message"])
+
+        words = item["message"].lower().split()
+
+        if any(w in words for w in ["it", "they", "them"]):
+            print("Reference: Requires speaker-aware resolution")
+
+        if any(w in words for w in ["aa?", "undi"]):
+            print("Language: Possible code-mixed input")
+
+        if "cloz" in words or "brij" in words:
+            print("Warning: Possible speech recognition error")
+
+        if "?" in item["message"]:
+            print("Dialogue Act: QUESTION")
+        else:
+            print("Dialogue Act: INFORM")
+
+print("MULTI-PARTY THREAD PROCESSING")
+process_thread(threads)
+print("\nREVISED SYSTEM DESIGN")
+print("1. Speaker-aware reference resolution")
+print("2. Code-mixed language identification")
+print("3. Speech recognition error correction")
+print("4. Improved dialogue act classification")
+print("5. Multilingual bulletin generation")
+print("6. Confidence-based automatic checking")
+print("7. Human review for critical public information")
