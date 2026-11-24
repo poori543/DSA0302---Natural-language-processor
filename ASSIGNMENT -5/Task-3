@@ -1,0 +1,29 @@
+from collections import Counter
+import re
+
+text = """
+Heavy rain flooded North Road.
+It blocked the road.
+Therefore, traffic was diverted.
+Police helped the residents.
+"""
+
+words = re.findall(r'\b\w+\b', text.lower())
+
+reference = ["it", "they", "this", "that"]
+conjunction = ["and", "but", "because", "therefore", "however"]
+
+reference_count = sum(words.count(w) for w in reference)
+conjunction_count = sum(words.count(w) for w in conjunction)
+
+print("Reference devices:", reference_count)
+print("Conjunction devices:", conjunction_count)
+
+print("\nWord Frequency:")
+print(Counter(words))
+
+sentences = text.strip().split("\n")
+
+for i in range(len(sentences) - 1):
+    print("Transition:",
+          sentences[i], "->", sentences[i + 1])
