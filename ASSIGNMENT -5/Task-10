@@ -1,0 +1,31 @@
+import time
+import re
+def segmenter(text):
+    return re.split(r'(?<=[.!?])\s+', text)
+def reference_resolver(text):
+    sentences = segmenter(text)
+    entities = []
+    for sentence in sentences:
+        for word in sentence.split():
+            if word.lower() == "it" and entities:
+                print("It refers to:", entities[-1])
+            else:
+                if word.lower() not in [
+                    "the", "is", "a", "and"
+                ]:
+                    entities.append(word)
+def coherence(text):
+    sentences = segmenter(text)
+    return len(sentences)
+def generator(incident, location):
+    return incident + " reported at " + location
+text = "Heavy rain flooded the road. It is closed."
+start = time.time()
+print("Segmentation:", segmenter(text))
+print("\nReference Resolution:")
+reference_resolver(text)
+print("\nCoherence Score:", coherence(text))
+print("\nGenerated Text:",
+      generator("Flood", "North Road"))
+end = time.time()
+print("\nExecution Time:", end - start, "seconds")
